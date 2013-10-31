@@ -1,0 +1,34 @@
+###############################################################################
+#ADIOS VERSION of FLEXWIN
+#BUG REPORT: lei@princeton.edu
+
+#############################################################
+#Pre-request
+1. SAC(libary)
+2. mpicc
+3. mpif90
+
+#############################################################
+#modify the input and output
+1. open "FLEXWIN_ASDF-V2.1" and open file "FLEXWIN_ADIOS.f90"
+2. the input file is defined in "input_fn" variables
+3. the output direcotry is defined in "outdir" variables
+
+#############################################################
+#compile the code
+1. run: make clean
+2. run: make
+3. the excutable file "WORKFLOW" is generated
+
+#############################################################
+#To test the code
+1. open "parallel.sh", in line 5, you see "cd /tigress/lei/test/FLEXWIN_ASDF-V2.1. modify it with your own direcotry. You can also specify the processor number.
+2. use "qsub parallel.sh" to submit the job
+3. the output file should be in "./output" direcotry. The number of output file should be the same with the number of processor. 
+
+
+#############################################################
+#some tips:
+1. if you want to use you own data, you can modify the script "run_input_cmt.csh" to generate your own filelist and then modify the input file in "FLEXWIN_ADIOS.f90".
+
+

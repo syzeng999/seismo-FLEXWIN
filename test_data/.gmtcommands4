@@ -1,0 +1,12 @@
+# GMT common arguments shelf
+-B179:Time (s):/S
+-JX8/1.5
+-R0.07/1799.07/0/0.447288E-05
+-Y6
+-y-2.5
+-jX8/1.5
+EOF
+jX8/1.5
+EOF
+-jX8/1.5
+EOF

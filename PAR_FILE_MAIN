@@ -1,0 +1,13 @@
+#=================================================================
+#if RUN_FLEXWIN, calculate the flexwin; 
+#if not, windows are already been generated. Read from window file
+#
+#
+#
+#=================================================================
+
+#location info
+OBSD_FILE                   = /tigress/lei/ASDF/SAC_TO_ASDF_CONVERTER/200801151752A_27_60_obsd.bp 
+SYNT_FILE                   = /tigress/lei/ASDF/SAC_TO_ASDF_CONVERTER/200801151752A_27_60_synt.bp 
+FLEXWIN_OUTDIR              = OUTPUT
+

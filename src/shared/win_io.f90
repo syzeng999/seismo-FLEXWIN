@@ -41,7 +41,7 @@ contains
               trim(p1_string)//'_'//trim(p2_string)
     print *, "1:", trim(outfile_name)
     call system('mkdir -p '//trim(outfile_name)//'')
-    outfile_name=trim(outfile_name)//'/'//trim(myid_string)//'.win.mat'
+    outfile_name=trim(outfile_name)//'/'//trim(myid_string)//'.win.dat'
     print *, "2:", trim(outfile_name)
     !outfile_name=trim(outdir)//'/'//trim(event)//'_'//&
     !  trim(p1_string)//'_'//trim(p2_string)//'/'&

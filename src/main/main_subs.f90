@@ -8,7 +8,7 @@ subroutine read_main_parfile_mpi(rank, comm, ierr)
 
   use var_main
 
-  include 'mpif.h'
+  use mpi 
   integer :: rank, comm, ierr
   
   if(rank.eq.0)then
@@ -78,17 +78,18 @@ subroutine read_main_parfile(ierr)
 end subroutine read_main_parfile
 
 subroutine read_flexwin_parfile_mpi(flexwin_par_all, min_period, &
-                      max_period, event_dpt, &
+                      max_period, event_dpt, nrecords, &
 											rank, comm, ierr)
 
 	use flexwin_struct
 	use flexwin_subs
 
-  include 'mpif.h'
+  use mpi
 
 	type(flexwin_par_struct_all) :: flexwin_par_all
-	real :: min_period, max_period, event_dpt
+	real :: min_period, max_period, event_dpt(:)
 	integer :: rank, comm, ierr
+  integer :: nrecords
 
 	integer :: oldtype(6), newtype, offset(6), blockcount(6)
 	integer :: extent
@@ -98,7 +99,17 @@ subroutine read_flexwin_parfile_mpi(flexwin_par_all, min_period, &
 
 	character(len=150) :: fn
 
+  real :: aver_event_dpt
 
+
+  aver_event_dpt=sum(event_dpt(1:nrecords))/nrecords
+  !check if the event_dpt are simliar
+  !cause current version of FLEXWIN can only deal with asdf from one earthquake
+  if(abs(aver_event_dpt-event_dpt(1)).gt.5.0) then
+    print *, "Check if the event_dpt(:) array are the same"
+    print *, "This version FLEXWIN only takes asdf from one earthquake"
+    stop
+  endif
 	!print *,"SET UP"
 	!setup description of the flexwin_par
 	!call read_flexwin_parfile_mpi(flexwin_par, fstart, fend, rank, nproc, comm)
@@ -137,8 +148,10 @@ subroutine read_flexwin_parfile_mpi(flexwin_par_all, min_period, &
 	!print *, "SET UP finished!"
 
 	if(rank.eq.0) then
+    print *,"Period Band(s):", min_period, max_period
+    print *,"event_dpt:", aver_event_dpt
 		call read_flexwin_parfile(flexwin_par_all, min_period, &
-                      max_period, event_dpt)
+                      max_period, aver_event_dpt)
 	endif
 
   call MPI_Bcast(flexwin_par_all, 1, newtype, 0, comm, ierr)

@@ -7,7 +7,7 @@
 #=================================================================
 
 #location info
-OBSD_FILE                   = DATA/200801151752A/200801151752A_obs.bp
-SYNT_FILE                   = DATA/200801151752A/200801151752A_sem.bp
+OBSD_FILE                   = DATA/200801151752A_obs.bp
+SYNT_FILE                   = DATA/200801151752A_sem.bp
 FLEXWIN_OUTDIR              = OUTPUT
 

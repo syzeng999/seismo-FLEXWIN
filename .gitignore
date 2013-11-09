@@ -1,7 +1,9 @@
-TEST
+FLEXWIN_ASDF
 *.swl
 *.bp
 *.o
 *.mod
 *.swo
 *.swp
+*.swn
+*.win.dat

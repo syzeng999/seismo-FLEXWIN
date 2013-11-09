@@ -269,10 +269,10 @@ contains
     integer :: i
     character(len=150) :: parfile_dir, fn
     
-    print *, fstart, fend
+    !print *, fstart, fend
     write(fstart_string,'(i10)')int(fstart)
     write(fend_string,'(i10)')int(fend)
-    print *, fstart_string, fend_string
+    !print *, fstart_string, fend_string
     fstart_string=adjustl(fstart_string)
     fend_string=adjustl(fend_string)
     

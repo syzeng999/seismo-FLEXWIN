@@ -1,6 +1,5 @@
 FLEXWIN_ASDF
 *.swl
-*.bp
 *.o
 *.mod
 *.swo

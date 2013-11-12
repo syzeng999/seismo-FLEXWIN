@@ -6,7 +6,7 @@
 #-----------------------------
 Pre-request:
 1) SAC
-2) ASDF
+2) Adios-1.5.0
 
 #-----------------------------
 How to run examples:
@@ -24,10 +24,10 @@ How to run:
   b) FLEXWIN/PAR_FILES: Parameter files for flexwin, differetiated by component and period band.
   c) FLEXWIN/src/user_functions.f90: user_functions settings inside. Modify it a little. However, if you look into it, it's very simple. Have to make this modification because we are now working in a different way.
 
-2. make clean --> make
+2. make clean;  make
 
-3. ./TEST(you can also submit the job the cluster and run it in parallel, which is the ultimate point of this program. But even you run on 1 processor, you can still get hugh speed up!)
+3. ./FLEXWIN_ASDF(you can also submit the job the cluster and run it in parallel, which is the ultimate point of this program. But even you run on 1 processor, you can still get hugh speed up!)
 
 #-----------------------------
 TODO:
-1) Give options to weighting.
+1) modify Makefile

@@ -1,8 +1,11 @@
+TEST
 FLEXWIN_ASDF
+*.win.dat
 *.swl
 *.o
 *.mod
 *.swo
 *.swp
 *.swn
-*.win.dat
+log
+cpu_time

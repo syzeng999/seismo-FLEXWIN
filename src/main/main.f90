@@ -1,19 +1,9 @@
-!==============================================================================
-!Program: Global_Tomography_Data_Processing
-!Developer: Princeton Global Tomography Group(PGTG)
-!Group Member: Wenjie Lei(lei@princeton.edu), Ebru Bozdag(bozdag@princeton.edu),
-!James A. Smith(jas11@princeton.edu)
-!===================
-!Functions:
-!1) Read ADIOS
-!2) Processing: rtrend, rmean, taper, inst_remove(filter)
-!3) data_quality: generate the useful data list
-!4) flexwin: window selection
-!5) Measure_adj: make measurements and adjoint sources
-!5) write out the new ADIOS file(filtered, selected and window selected)
-!===================
-!Bug Report: lei@princeton.edu
-!===============================================================================
+!> @file
+!! Program: Global_Tomography_Data_Processing
+!! Developer: Princeton Global Tomography Group(PGTG)
+!! Group Member: Wenjie Lei(lei@princeton.edu), Ebru Bozdag(bozdag@princeton.edu),
+!! James A. Smith(jas11@princeton.edu)
+!! Bug Report: lei@princeton.edu
 
 program main
 
@@ -25,14 +15,10 @@ program main
   use asdf_subs
 
   use flexwin_subs
-
-  use adios_write_mod
-  use adios_read_mod
-
 	use main_subs
 
+  use mpi
   implicit none
-  include 'mpif.h'
 
   type(asdf_event)        :: synt_all, obsd_all
   type(win_info),allocatable      :: win_all(:)
@@ -41,9 +27,6 @@ program main
   !mpi_var
   integer                 :: nproc,comm,rank
   integer                 :: ierr,adios_err
-  !adios_var
-  integer(kind=8)         :: adios_groupsize, adios_totalsize
-  integer(kind=8)         :: adios_handle, adios_group
 
   integer                 :: i
 
@@ -59,13 +42,6 @@ program main
   call mpi_comm_size(comm,nproc,ierr)
   if(rank.eq.0) print *, "Start FLEXWIN..."
   if(rank.eq.0) print *, "NPROC:", nproc
-	!----------.
-  !init adios!
-	!----------'
-  call adios_init_noxml(comm, adios_err)
-  call adios_allocate_buffer(100, adios_err)
-  call adios_declare_group(adios_group,"EVENTS","iter",1,adios_err)
-  call adios_select_method(adios_group,"MPI","","",adios_err)
 
   !--------------------------.
   !read main parfile         !
@@ -95,11 +71,12 @@ program main
 	endif
   !stop
 
+  !need to be removed in the future
   obsd_all%min_period=17.0
   obsd_all%max_period=60.0
 
   !--------------------------.
-  !read parfile         !
+  !read parfile              !
   !--------------------------'
 	if(rank.eq.0) then
    	print *,"-----------------"
@@ -147,7 +124,6 @@ program main
   !finalize mpi              !
   !--------------------------'
   call MPI_Barrier(comm,ierr)
-  call adios_finalize(rank,adios_err)
   call mpi_finalize(ierr)
 
 	call CPU_TIME(t2)

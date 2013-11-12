@@ -65,6 +65,8 @@ subroutine read_main_parfile(ierr)
 	print *, "OBSD_FILE: ", trim(OBSD_FILE)
 	read(IIN,2) dummy_string, SYNT_FILE
 	print *, "SYNT_FILE: ", trim(SYNT_FILE)
+  read(IIN, *)
+  read(IIN, *)
 	read(IIN,2) dummy_string, FLEXWIN_OUTDIR
 	print *, "FLEXWIN_OUTDIR: ", trim(FLEXWIN_OUTDIR)
 

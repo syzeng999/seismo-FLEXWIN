@@ -12,7 +12,7 @@ program main
   use var_main
 
   use win_io
-  use asdf_subs
+  use asdf_read_subs
 
   use flexwin_subs
 	use main_subs
@@ -23,6 +23,10 @@ program main
   type(asdf_event)        :: synt_all, obsd_all
   type(win_info),allocatable      :: win_all(:)
   type(flexwin_par_struct_all) 		:: flexwin_par_all
+
+  integer :: nrecords
+  character(len=20) :: station(MAXDATA_PER_PROC), network(MAXDATA_PER_PROC)
+  character(len=20) :: component(MAXDATA_PER_PROC), receiver_id(MAXDATA_PER_PROC)
 
   !mpi_var
   integer                 :: nproc,comm,rank
@@ -62,9 +66,13 @@ program main
   	print *, "OBSD_FILE: ",trim(OBSD_FILE)
 		print *, "SYNT_FILE: ",trim(SYNT_FILE)
 	endif
-  call read_asdf_file(OBSD_FILE,obsd_all,rank,nproc,comm,ierr)
+  call read_asdf_file(OBSD_FILE, obsd_all, nrecords, &
+    station, network, component, receiver_id, 0, &
+    rank, nproc, comm, ierr)
   print *, "read obsd finished!"
-  call read_asdf_file(SYNT_FILE,synt_all,rank,nproc,comm,ierr)
+  call read_asdf_file(SYNT_FILE, synt_all, nrecords, &
+    station, network, component, receiver_id, 1, &
+    rank, nproc, comm, ierr)
   print *, "read synt finished!"
 	if(rank.eq.0) then
   	print *, "/event:", trim(obsd_all%event)

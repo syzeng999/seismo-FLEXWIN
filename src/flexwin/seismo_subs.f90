@@ -119,6 +119,8 @@
   ! indices of start/end times for signal and noise
   integer :: in1, in2, is1, is2
 
+  double precision, parameter :: CIRCUM_EARTH = 40210.0 !km
+
   end module seismo_variables
 
 !----------------------------------------------------------------------

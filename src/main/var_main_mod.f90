@@ -8,6 +8,8 @@ module var_main
 
   character(len=150) :: FLEXWIN_OUTDIR, MEASURE_ADJ_OUTDIR
 
+  real :: PERIOD_BEGIN, PERIOD_END
+
   integer :: weighting_option
 
 end module var_main

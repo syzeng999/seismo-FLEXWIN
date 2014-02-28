@@ -28,6 +28,9 @@ subroutine read_asdf_file(file_name, my_asdf, nrecords, &
   integer,intent(in) :: rank, nproc, comm
 	integer :: ierr
 
+  if(rank.eq.0) print *, "---------"
+  if(rank.eq.0) print *, "Reading file begin: ", trim(file_name)
+
   if(option.eq.0) then
     !option=0, read the data and return the sta, nw, comp and rid
     call read_asdf_file_0(file_name, my_asdf, nrecords, &
@@ -46,6 +49,10 @@ subroutine read_asdf_file(file_name, my_asdf, nrecords, &
   else
     print *, "check the option value: 0, 1 or 2"
   endif
+
+  call MPI_Barrier(comm, ierr)
+  if(rank.eq.0) print *, "Reading file finished: ", trim(file_name)
+  if(rank.eq.0) print *, "---------"
   
 end subroutine read_asdf_file
 
@@ -205,7 +212,9 @@ subroutine read_asdf_file_0(file_name, my_asdf, nrecords, &
 	call adios_get_scalar (fh, "/min_period", my_asdf%min_period, ierr)
   !print *,"/event",my_asdf%event
   !print *,"nreceiver:",my_asdf%nreceivers
-  print *, "my_asdf%event:",my_asdf%event
+  if(rank.eq.0)then
+    print *, "my_asdf%event:",my_asdf%event
+  endif
 
   !read in array
   start(1) = loc_begin-1 
@@ -553,6 +562,8 @@ subroutine init_asdf_data(my_asdf,nrecords)
   allocate (my_asdf%receiver_id_array(my_asdf%nrecords))
 
   len_temp=6*nrecords
+  my_asdf%min_period=0.0
+  my_asdf%max_period=0.0
   !allocate (character(len=len_temp) :: my_asdf%receiver_name)
   !allocate (character(len=len_temp) :: my_asdf%network)
   !allocate (character(len=len_temp) :: my_asdf%component)

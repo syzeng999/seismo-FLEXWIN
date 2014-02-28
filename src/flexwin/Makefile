@@ -6,7 +6,7 @@ SRCDIR = $(PWD)
 #IDIR   = $(PWD)/UTILS/include
 #EVALLIB=/home/lei/ASDF/evalresp/.libs
 
-CFLAGS = -check
+CFLAGS = -check noarg_temp_created
 
 # new version with default sac libraries
 SACLIBDIR = ${SACHOME}/lib
@@ -27,7 +27,7 @@ FC = ifort
 CC = icc
 MPIFC = mpif90
 MPICC = mpicc
-CFLAGS= -g -O0 -check all
+#CFLAGS= -g -O0 -check all
 
 _OBJ = 	copy_float.o user_parameters.o \
 			 	seismo_subs.o user_functions.o maxima.o travel_times.o \

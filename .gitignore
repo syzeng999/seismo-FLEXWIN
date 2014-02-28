@@ -9,3 +9,5 @@ FLEXWIN_ASDF
 *.swn
 log
 cpu_time
+*.bp
+*log*

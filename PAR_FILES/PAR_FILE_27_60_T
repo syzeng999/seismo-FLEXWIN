@@ -30,7 +30,7 @@ STALTA_BASE                     = 0.085
 
 # -------------------------------------------------------------
 # maximum allowable time shift from reference TSHIFT
-TSHIFT_BASE                     = 15.0
+TSHIFT_BASE                     = 12.0
 TSHIFT_REFERENCE                = 0.0
 
 # -------------------------------------------------------------
@@ -40,7 +40,7 @@ DLNA_REFERENCE                  = 0.0
 
 # -------------------------------------------------------------
 # limit on CC for window acceptance
-CC_BASE                         = 0.85
+CC_BASE                         = 0.80
 
 # -------------------------------------------------------------
 # boolean switch for check_data_quality

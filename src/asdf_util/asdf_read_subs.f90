@@ -363,7 +363,8 @@ subroutine read_asdf_file_1 (file_name, my_asdf, nrecords, &
     receiver_name_len, network, network_len, component, component_len, &
     receiver_id, receiver_id_len, nrecords, sta, nw, comp, rid, &
     points_array)
-  print *, "rank",rank, "points:", points_array(:)
+  print *, "nrecords, rank:", nrecords, rank
+  !print *, "rank",rank, "points:", points_array(:)
   !print *, "split job end"
 
 
@@ -703,7 +704,11 @@ subroutine split_job_mpi_on_sta_info(nrecords_total, receiver_name,&
                             comp_total,dim_array,'.')
   call split_string(receiver_id,receiver_id_len, &
                             rid_total,dim_array,'.')
+
                             
+  !do i=1, nrecords_total
+  !  print *, "sta2:", trim(sta_total(i)),'.',trim(nw_total(i)),'.',trim(comp_total(i)),'.'
+  !enddo
 
 !  print *,"here"
   do i=1, nrecords_total
@@ -741,6 +746,10 @@ subroutine split_job_mpi_on_sta_info(nrecords_total, receiver_name,&
 !    print *, trim(sta_total_list(i)%sta), trim(sta_total_list(i)%comp)
 !  enddo
   !stop
+  !do i=1, nrecords_total
+  !  print *, "sta3:", trim(sta_total_list(i)%sta),".",trim(sta_total_list(i)%nw),".",&
+  !    trim(sta_total_list(i)%comp), sta_total_list(i)%loc
+  !enddo
 
   index_list(:)=0
   do i=1, nrecords_total
@@ -752,8 +761,8 @@ subroutine split_job_mpi_on_sta_info(nrecords_total, receiver_name,&
   do i=2,128
     index_list(i)=index_list(i-1)+index_list(i)
   enddo
-!  print *,"index_list:"
-!  print *, index_list(:)
+  !print *,"index_list:"
+  !print *, index_list(:)
   !stop
 
   points_array(:)=-1
@@ -805,13 +814,16 @@ subroutine insertion_sort(sta_list, nrecords)
     !get into sorted array
     do j=i-1,1,-1
       compare_result=compare_sta_info(sta_temp, sta_list(j))
-      !print *, compare_result
-      if(compare_result.eq.1)then
+      !print *, "i,j,result:", i, j, compare_result
+      if(compare_result.eq.-1)then
+        insert_loc=j
+      else if(compare_result.eq.1)then
         insert_loc=j+1
-  !      print *, insert_loc
         exit
       endif
+  !      print *, insert_loc
     enddo
+    !print *, "insert_loc:",insert_loc
     !move
     do j=i-1, insert_loc, -1
       sta_list(j+1)=sta_list(j)

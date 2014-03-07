@@ -135,22 +135,34 @@ subroutine set_up_criteria_arrays_bw_R
    ! --------------------------------
    ! if we are beyond the Rayleigh wave, then make the all criteria stronger
    ! ratio criterion stronger
-   if ( (time.gt.R_time) .and. (time.lt.(0.2*(CIRCUM_EARTH/2)/R_vel)) ) then
+   if(evdp.gt.200.0)then  
+    if ( (time.gt.R_time) .and. (time.lt.(0.2*(CIRCUM_EARTH/2)/R_vel)) ) then
      S2N_LIMIT(i)=2*WINDOW_S2N_BASE    ! only pick big signals
      !CC_LIMIT(i)= 0.95                  ! only pick very similar signals
      !TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
      !DLNA_LIMIT(i)=DLNA_BASE/2.0        ! only pick small amplitude anomalies
      STALTA_W_LEVEL(i)=STALTA_BASE*2.0     ! pick only distinctive arrivals
-   endif
+    endif
 
-   if( time.gt.(0.2*(CIRCUM_EARTH/2)/R_vel) .and. &
+    if( time.gt.(0.2*(CIRCUM_EARTH/2)/R_vel) .and. &
         (time.gt.R_time) ) then
      S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
      CC_LIMIT(i)= 0.95                  ! only pick very similar signals
      TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
      DLNA_LIMIT(i)=DLNA_BASE/3.0        ! only pick small amplitude anomalies
      STALTA_W_LEVEL(i)=STALTA_BASE*10    ! pick only distinctive arrivals
-   endif
+    endif
+  else
+    !shallow earthquake
+    if( (time.gt.R_time) ) then
+     S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
+     CC_LIMIT(i)= 0.95                  ! only pick very similar signals
+     TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
+     DLNA_LIMIT(i)=DLNA_BASE/3.0        ! only pick small amplitude anomalies
+     STALTA_W_LEVEL(i)=STALTA_BASE*10    ! pick only distinctive arrivals
+    endif
+  endif
+
    ! --------------------------------
    ! if we are in the surface wave times, then make the cross-correlation
    ! criterion less severe
@@ -253,22 +265,34 @@ subroutine set_up_criteria_arrays_bw_T
    ! --------------------------------
    ! if we are beyond the Rayleigh wave, then make the all criteria stronger
    ! ratio criterion stronger
-   if ( (time.gt.R_time) .and. (time.lt.(0.5*(CIRCUM_EARTH/2)/R_vel)) ) then
-     S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
-     CC_LIMIT(i)= CC_BASE+0.03                 ! only pick very similar signals
-     TSHIFT_LIMIT(i)=TSHIFT_BASE/1.5    ! only pick small timeshifts
-     DLNA_LIMIT(i)=DLNA_BASE/1.5        ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*1.5     ! pick only distinctive arrivals
-   endif
-
-   if( (time.gt.(0.5*(CIRCUM_EARTH/2)/R_vel)) .and. &
+   if(evdp.gt.200.0)then
+    !deep earthquake: ScS
+    if ( (time.gt.R_time) .and. (time.lt.(0.5*(CIRCUM_EARTH/2)/R_vel)) ) then
+      S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= CC_BASE+0.03                 ! only pick very similar signals
+      TSHIFT_LIMIT(i)=TSHIFT_BASE/1.5    ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/1.5        ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*1.5     ! pick only distinctive arrivals
+    endif
+    if( (time.gt.(0.5*(CIRCUM_EARTH/2)/R_vel)) .and. &
        (time.gt.R_time)  ) then
      S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
      CC_LIMIT(i)= 0.95                  ! only pick very similar signals
      TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
      DLNA_LIMIT(i)=DLNA_BASE/2.0        ! only pick small amplitude anomalies
      STALTA_W_LEVEL(i)=STALTA_BASE*5.0     ! pick only distinctive arrivals
+    endif
+  else
+    !shallow earthquake: no ScS
+    if( time.gt.R_time )then
+     S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
+     CC_LIMIT(i)= 0.95                  ! only pick very similar signals
+     TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
+     DLNA_LIMIT(i)=DLNA_BASE/2.0        ! only pick small amplitude anomalies
+     STALTA_W_LEVEL(i)=STALTA_BASE*5.0     ! pick only distinctive arrivals
    endif
+  endif
+
    ! --------------------------------
    ! if we are in the surface wave times, then make the cross-correlation
    ! criterion less severe
@@ -531,24 +555,37 @@ subroutine set_up_criteria_arrays_sw_R
    ! if we are beyond the Rayleigh wave, then make the all criteria stronger
    ! ratio criterion stronger
   !if (time.gt.(R_time+WIN_MAX_PERIOD)) then
-  if ( time.gt.(R_time+3*WIN_MAX_PERIOD) .and. &
+  if( evdp.lt.200.0 ) then
+    !shallow event: major-arc surface wave
+    if ( time.gt.(R_time+3*WIN_MAX_PERIOD) .and. &
         time.lt. ( R_time_major_arc-3*WIN_MAX_PERIOD ) ) then
    !if (time.gt.R_time) then
-     S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
-     CC_LIMIT(i)= CC_LIMIT(i)+0.05     ! only pick very similar signals
-     TSHIFT_LIMIT(i)=TSHIFT_BASE/2      ! only pick small timeshifts
-     DLNA_LIMIT(i)=DLNA_BASE/5.0       ! only pick small amplitude anomalies
-     !STALTA_W_LEVEL(i)=STALTA_BASE*5 ! pick only distinctive arrivals
-     STALTA_W_LEVEL(i)=1 ! pick only distinctive arrivals
-   endif
+      S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= CC_LIMIT(i)+0.05     ! only pick very similar signals
+      TSHIFT_LIMIT(i)=TSHIFT_BASE/2      ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/5.0       ! only pick small amplitude anomalies
+      !STALTA_W_LEVEL(i)=STALTA_BASE*5 ! pick only distinctive arrivals
+      STALTA_W_LEVEL(i)=1 ! pick only distinctive arrivals
+    endif
 
-   if ( time.gt.(R_time_major_arc+3*WIN_MAX_PERIOD) ) then
-     S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
-     CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
-     !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
-     DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
-   endif
+    if ( time.gt.(R_time_major_arc+3*WIN_MAX_PERIOD) ) then
+      S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
+      !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
+    endif
+  else
+    !if( time.gt.(R_time+3*WIN_MAX_PERIOD) ) then
+    if( time.gt.(R_time) ) then
+      S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= 0.95                  ! only pick very similar signals
+      TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/2.0        ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*5.0     ! pick only distinctive arrivals
+    endif
+  endif
+
    ! --------------------------------
    ! Before Rayleigh waves, then make the all criteria stronger
    ! ratio criterion stronger
@@ -676,23 +713,35 @@ subroutine set_up_criteria_arrays_sw_T
    ! if we are beyond the Rayleigh wave, then make the all criteria stronger
    ! ratio criterion stronger
   !if (time.gt.(R_time+WIN_MAX_PERIOD)) then
-  if ( time.gt.(Q_time+2*WIN_MAX_PERIOD) .and. &
+  if( evdp.lt.200.0 ) then
+    !shallow earthquake
+    if ( time.gt.(Q_time+2*WIN_MAX_PERIOD) .and. &
         time.lt. (Q_time_major_arc-3*WIN_MAX_PERIOD) ) then
-   !if (time.gt.R_time) then
-     S2N_LIMIT(i)=5*WINDOW_S2N_BASE    ! only pick big signals
-     CC_LIMIT(i)= CC_LIMIT(i)+0.05     ! only pick very similar signals
-     !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
-     DLNA_LIMIT(i)=DLNA_BASE/3.0       ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*5   ! pick only distinctive arrivals
-   endif
+    !if (time.gt.R_time) then
+      S2N_LIMIT(i)=5*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= CC_LIMIT(i)+0.05     ! only pick very similar signals
+      !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/3.0       ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*5   ! pick only distinctive arrivals
+    endif
 
-   if ( time.gt.(Q_time_major_arc+3*WIN_MAX_PERIOD) ) then
-     S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
-     CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
-     !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
-     DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
-   endif
+    if ( time.gt.(Q_time_major_arc+3*WIN_MAX_PERIOD) ) then
+      S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
+      !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
+    endif
+  else
+    !if( time.gt.(Q_time+2*WIN_MAX_PERIOD)) then
+    if( time.gt.(Q_time)) then
+      S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= 0.95                  ! only pick very similar signals
+      TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/2.0        ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*5.0     ! pick only distinctive arrivals
+    endif
+  endif
    ! --------------------------------
    ! Before Rayleigh waves, then make the all criteria stronger
    ! ratio criterion stronger
@@ -811,23 +860,34 @@ subroutine set_up_criteria_arrays_sw_Z
    ! if we are beyond the Rayleigh wave, then make the all criteria stronger
    ! ratio criterion stronger
   !if (time.gt.(R_time+WIN_MAX_PERIOD)) then
-  if ( time.gt.(R_time+3*WIN_MAX_PERIOD) .and. &
+  if( evdp.lt.200.0 )then
+    if ( time.gt.(R_time+3*WIN_MAX_PERIOD) .and. &
         time.lt. ( R_time_major_arc-3*WIN_MAX_PERIOD ) ) then
-   !if (time.gt.R_time) then
-     S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
-     CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
-     !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
-     DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
-   endif
+    !if (time.gt.R_time) then
+      S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
+      !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
+    endif
 
-   if ( time.gt.R_time_major_arc+3*WIN_MAX_PERIOD  ) then
-     S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
-     CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
-     !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
-     DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
-   endif
+    if ( time.gt.R_time_major_arc+3*WIN_MAX_PERIOD  ) then
+      S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
+      !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
+    endif
+  else
+    !if( time.gt.(R_time+3*WIN_MAX_PERIOD)) then
+    if( time.gt.(R_time)) then
+      S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals
+      CC_LIMIT(i)= 0.95                  ! only pick very similar signals
+      TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
+      DLNA_LIMIT(i)=DLNA_BASE/2.0        ! only pick small amplitude anomalies
+      STALTA_W_LEVEL(i)=STALTA_BASE*5.0     ! pick only distinctive arrivals
+    endif
+  endif
   !if (time.gt.(dist_km/3.7+2*WIN_MAX_PERIOD)) then
    !if (time.gt.R_time) then
   !   S2N_LIMIT(i)=10*WINDOW_S2N_BASE    ! only pick big signals

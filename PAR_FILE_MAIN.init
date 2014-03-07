@@ -7,13 +7,13 @@
 #=================================================================
 
 #INPUT file info
-OBSD_FILE                   = /tigress/lei/EBRU/Test/DATA/T027-060s/201011100405A_obs.sac.bp
-SYNT_FILE                   = /tigress/lei/EBRU/Test/DATA/T027-060s/201011100405A_sem.sac.bp
+OBSD_FILE                   = /tigress/lei/EBRU/Test/DATA/T060-120s/201011100405A_obs.sac.bp
+SYNT_FILE                   = /tigress/lei/EBRU/Test/DATA/T060-120s/201011100405A_sem.sac.bp
 
 #OUTPUT directory(the window file)
 FLEXWIN_OUTDIR              = /tigress/lei/EBRU/Test/window
 
 #PERIOD INFO(seconds)
-PERIOD_BEGIN                = 27.0
-PERIOD_END                  = 60.0
+PERIOD_BEGIN                = 60.0
+PERIOD_END                  = 120.0
 

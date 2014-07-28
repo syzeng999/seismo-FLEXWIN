@@ -1,21 +1,21 @@
 module win_io_subs
 
-	!use asdf_data
+  !use asdf_data
   use flexwin_struct
-	!use user_parameters
-	implicit none
+  !use user_parameters
+  implicit none
 
 contains
 
   !-------------------------------------------------------------------	
-  subroutine win_write(OUTDIR, event, p1, p2, nrecords, receiver_name, &
+  subroutine win_write_mt(OUTDIR, event, p1, p2, nrecords, receiver_name, &
                 network, component, receiver_id, win, myid)
 
     integer :: OON=50
     character(len=*) :: OUTDIR
     integer :: nrecords
     character(len=*),intent(in) :: event
-    real :: p1, p2
+    double precision :: p1, p2
     type(win_info),intent(in) :: win(:)
     !type(asdf_event),intent(in) :: obsd_all
     character(len=*) :: receiver_name(:), network(:)
@@ -63,19 +63,19 @@ contains
     enddo
     close(OON)
   
-  end subroutine win_write
+  end subroutine win_write_mt
 
 
   !-------------------------------------------------------------------	
   !write small files. Each file contains one window selection result
-  subroutine win_write_2(OUTDIR_BASE, event, p1, p2, nrecords, &
+  subroutine win_write_single_file(OUTDIR_BASE, event, p1, p2, nrecords, &
     receiver_name, network, component, receiver_id, win, myid)
 
     integer :: OON=50
     character(len=*) :: OUTDIR_BASE
     integer :: nrecords
     character(len=*),intent(in) :: event
-    real :: p1, p2
+    double precision :: p1, p2
     type(win_info),intent(in) :: win(:)
     !type(asdf_event),intent(in) :: obsd_all
     character(len=*) :: receiver_name(:), network(:)
@@ -123,13 +123,16 @@ contains
       !  write(OON,*)win(i)%num_win
       if(win(i)%num_win.gt.0)then
         do j=1,win(i)%num_win
-          write(OON,*) j,win(i)%t_start(j),win(i)%t_end(j)
+          write(OON,21) j,win(i)%t_start(j),win(i)%t_end(j), &
+            win(i)%tshift(j), win(i)%cc(j), win(i)%dlnA(j)
         enddo
       endif
       close(OON)
     enddo
+
+21 format(I4, 5F12.4)
   
-  end subroutine win_write_2
+  end subroutine win_write_single_file
 
 
 
@@ -137,7 +140,7 @@ contains
                         nrecords,rank,ierr)
 
     character(len=*) :: FLEXWIN_OUTDIR
-    real :: p1, p2
+    double precision :: p1, p2
     character(len=*) :: event
     type(win_info), allocatable :: win_all(:)
     integer :: nrecords

@@ -13,7 +13,7 @@
  
 # -------------------------------------------------------------
 # boolean parameters
-DEBUG                           = .false.
+DEBUG                           = .true.
 MAKE_SEISMO_PLOTS               = .false.
 MAKE_WINDOW_FILES               = .false.
 BODY_WAVE_ONLY                  = .false.

@@ -4,6 +4,19 @@
   use user_parameters
   implicit none
 
+  !========================================
+  !flags added by Wenjie
+  !========================================
+  !this part is added due to the need of pick phases after surface wave
+  !sometimes the surface wave is too large and makes pick after surface wave 
+  !really hard. So if you turn on the REMOVE_SW flag: the strategy would be
+  !first select phases before surface waves(include surface waves) and then 
+  !select phases after surface waves.
+  logical :: REMOVE_SW
+  !if FOCUS PART==1, then focus on body wave and surface wave
+  !if FOCUS PART==2, then focus on phases after surface wave
+  integer :: FOCUS_PART
+
   !=========================================
   ! Declaration of parameters from PAR_FILE
   !=========================================
@@ -88,7 +101,7 @@
   double precision, dimension (NDIM) :: STA_LTA
 
   ! time-dependent criteria arrays for selection parameters
-  double precision, dimension (NDIM) :: STALTA_W_LEVEL, TSHIFT_LIMIT, CC_LIMIT, DLNA_LIMIT, S2N_LIMIT
+  double precision, dimension (NDIM) :: STALTA_W_LEVEL, TSHIFT_LIMIT, CC_LIMIT, DLNA_LIMIT, S2N_LIMIT, C1_LIMIT
 
   ! seismogram parameters
   double precision :: dt, b, dt1, dt2, b1, b2
@@ -749,6 +762,8 @@
     lta=(Cl*lta+extended_syn(i))
   enddo
 
+  if(DEBUG) write(*,*) "sta/lta before signal=:", sta, lta, sta/lta
+
   ! determine long term average maximum value
   if( TWEAK ) then
     lta_org = lta
@@ -1036,11 +1051,23 @@ end subroutine calc_criteria_original
 
   call prepare_lp_env
 
+  if(REMOVE_SW)then
+    if(FOCUS_PART.eq.2)then
+      !if we focus on phases after surface waves, then change envelope to 0
+      !before those phases
+      call modify_lp_env_RSS
+    endif
+  endif
+
   call prepare_sta_lta
 
 ! set up the selection criteria arrays (subroutine is in user_functions.f90
 ! file)
   call set_up_criteria_arrays
+
+  if(REMOVE_SW)then
+    call modify_water_level_arrays_RSS
+  endif
 
   end subroutine
 

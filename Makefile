@@ -31,7 +31,8 @@ MPIFC = mpif90
 MPICC = mpicc
 CFLAGS= -g -O0 -check all
 
-_OBJ = var_main_mod.o main_subs.o main.o 
+#_OBJ = var_main_mod.o main_subs.o main.o 
+_OBJ = main.o 
 
 OBJ = $(patsubst %, ${OBJDIR}/%, $(_OBJ))
 

@@ -17,52 +17,52 @@ subroutine modify_T0_T1_on_condition
 
 
 subroutine set_up_criteria_arrays
-	use seismo_variables
-	implicit none
+  use seismo_variables
+  implicit none
 
   call set_up_criteria_arrays_default
 
-	!based on component info and period info to choose specific criteria
-	if(WIN_MAX_PERIOD.le.80.0 .and. WIN_MIN_PERIOD.ge.5.0)then
-		!body wave
-		select case (kcmpnm(3:3))
-			case ("Z")
-				call set_up_criteria_arrays_bw_Z
-			case ("R")
-				call set_up_criteria_arrays_bw_R
-			case ("T")
-				call set_up_criteria_arrays_bw_T
-			case DEFAULT
-				write(*,*) "Specific set_up_criteria subroutine missing."
-				write(*,*) "COMPONENT: ", kcmpnm(3:3), &
-						" PERIOD: ", WIN_MAX_PERIOD, WIN_MIN_PERIOD
-				write(*,*) "Create your own if you want to continuew"
-				stop
-		end select
-	else if(WIN_MAX_PERIOD.le.140.0 .and. WIN_MIN_PERIOD.ge.50.0) then
-		!surface wave
-		select case (kcmpnm(3:3))
-			case ("Z")
-				call set_up_criteria_arrays_sw_Z
-			case ("R")
-				call set_up_criteria_arrays_sw_R
-			case ("T")
-				call set_up_criteria_arrays_sw_T
-			case DEFAULT
-				write(*,*) "Specific set_up_criteria subroutine missing."
-				write(*,*) "COMPONENT: ", kcmpnm(3:3), &
-						" PERIOD: ", WIN_MAX_PERIOD, WIN_MIN_PERIOD
-				write(*,*) "Create your own if you want to continuew"
-				stop
-		end select
-	else
-		!none file found
-		write(*,*) "Specific set_up_criteria subroutine missing."
-		write(*,*) "COMPONENT: ", kcmpnm(3:3), &
-				" PERIOD: ", WIN_MAX_PERIOD, WIN_MIN_PERIOD
-		write(*,*) "Create your own if you want to continuew"
-		stop
-	endif
+  !based on component info and period info to choose specific criteria
+  if(WIN_MAX_PERIOD.le.80.0 .and. WIN_MIN_PERIOD.ge.5.0)then
+    !body wave
+    select case (kcmpnm(3:3))
+      case ("Z")
+        call set_up_criteria_arrays_bw_Z
+      case ("R")
+        call set_up_criteria_arrays_bw_R
+      case ("T")
+        call set_up_criteria_arrays_bw_T
+      case DEFAULT
+        write(*,*) "Specific set_up_criteria subroutine missing."
+        write(*,*) "COMPONENT: ", kcmpnm(3:3), &
+          " PERIOD: ", WIN_MAX_PERIOD, WIN_MIN_PERIOD
+        write(*,*) "Create your own if you want to continuew"
+        stop  
+      end select
+  else if(WIN_MAX_PERIOD.le.140.0 .and. WIN_MIN_PERIOD.ge.50.0) then
+    !surface wave
+    select case (kcmpnm(3:3))
+      case ("Z")
+        call set_up_criteria_arrays_sw_Z
+      case ("R")
+        call set_up_criteria_arrays_sw_R
+      case ("T")
+        call set_up_criteria_arrays_sw_T
+      case DEFAULT
+        write(*,*) "Specific set_up_criteria subroutine missing."
+        write(*,*) "COMPONENT: ", kcmpnm(3:3), &
+           " PERIOD: ", WIN_MAX_PERIOD, WIN_MIN_PERIOD
+        write(*,*) "Create your own if you want to continuew"
+        stop
+      end select
+  else
+    !none file found
+    write(*,*) "Specific set_up_criteria subroutine missing."
+    write(*,*) "COMPONENT: ", kcmpnm(3:3), &
+        " PERIOD: ", WIN_MAX_PERIOD, WIN_MIN_PERIOD
+    write(*,*) "Create your own if you want to continuew"
+    stop
+  endif
 
 end subroutine
 
@@ -211,7 +211,7 @@ subroutine set_up_criteria_arrays_bw_T
   double precision :: R_vel, R_time
   double precision :: Q_vel, Q_time
 
-
+  double precision :: S_arrival_time
 ! -----------------------------------------------------------------
 ! Start of user-dependent portion
 
@@ -253,6 +253,8 @@ subroutine set_up_criteria_arrays_bw_T
  if (DATA_QUALITY) then
    signal_end=R_time
  endif
+ call find_phase_arrival("S", S_arrival_time)
+ S_arrival_time=S_arrival_time-WIN_MAX_PERIOD/2.0
   !noise_end  = P_pick - 0.1*P_pick ! vertical and radial comp.
   ! noise_end  = S_pick - 0.2*S_pick ! transverse comp.
   !noise_start = b
@@ -268,11 +270,12 @@ subroutine set_up_criteria_arrays_bw_T
    if(evdp.gt.200.0)then
     !deep earthquake: ScS
     if ( (time.gt.R_time) .and. (time.lt.(0.5*(CIRCUM_EARTH/2)/R_vel)) ) then
-      S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
+      S2N_LIMIT(i)=2*WINDOW_S2N_BASE    ! only pick big signals
       CC_LIMIT(i)= CC_BASE+0.03                 ! only pick very similar signals
       TSHIFT_LIMIT(i)=TSHIFT_BASE/1.5    ! only pick small timeshifts
       DLNA_LIMIT(i)=DLNA_BASE/1.5        ! only pick small amplitude anomalies
       STALTA_W_LEVEL(i)=STALTA_BASE*1.5     ! pick only distinctive arrivals
+      !STALTA_W_LEVEL(i)= 1.0    ! pick only distinctive arrivals
     endif
     if( (time.gt.(0.5*(CIRCUM_EARTH/2)/R_vel)) .and. &
        (time.gt.R_time)  ) then
@@ -305,7 +308,7 @@ subroutine set_up_criteria_arrays_bw_T
 
    ! reject windows before P or S arrivals
    !if (time.lt.(S_pick - 0.2*S_pick)) then
-   if (time.lt.noise_end) then
+   if (time.lt.S_arrival_time) then
      STALTA_W_LEVEL(i)=1     ! to avoid windows before P or S arrivals
    endif
 
@@ -528,7 +531,10 @@ subroutine set_up_criteria_arrays_sw_R
   ! noise_end  = S_pick - 0.2*S_pick ! transverse comp.
   !noise_start = b
   print *, "R, dist_km:",dist_km, trim(kstnm)
-
+  
+ !modify noise_end and signal_start
+ noise_end=ph_times(1)-WIN_MAX_PERIOD/4.0
+ signal_start = noise_end
 
  ! --------------------------------
  ! modulate criteria in time
@@ -595,7 +601,8 @@ subroutine set_up_criteria_arrays_sw_R
     ! CC_LIMIT(i)= 0.95                  ! only pick very similar signals
     ! TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
     ! DLNA_LIMIT(i)=DLNA_BASE/3.0        ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*1.5     ! pick only distinctive arrivals
+     STALTA_W_LEVEL(i)=STALTA_BASE*1.8    ! pick only distinctive arrivals
+     C1_LIMIT(i)=2.0
   endif
    ! --------------------------------
 
@@ -640,7 +647,7 @@ subroutine set_up_criteria_arrays_sw_T
   double precision :: R_vel, R_time
   double precision :: Q_vel, Q_time, Q_time_major_arc
 
-
+  double precision :: S_arrival_time
 ! -----------------------------------------------------------------
 ! Start of user-dependent portion
 
@@ -686,7 +693,13 @@ subroutine set_up_criteria_arrays_sw_T
   !noise_end  = P_pick - 0.1*P_pick ! vertical and radial comp.
   ! noise_end  = S_pick - 0.2*S_pick ! transverse comp.
   !noise_start = b
+ !modify noise_end and signal_start
+ noise_end=ph_times(1)-WIN_MAX_PERIOD/4.0
+ signal_start = noise_end
 
+ call find_phase_arrival("S", S_arrival_time)
+ S_arrival_time=S_arrival_time-WIN_MAX_PERIOD/2.0
+ print *, "S_arrival_time: ", S_arrival_time
 
  ! --------------------------------
  ! modulate criteria in time
@@ -716,21 +729,20 @@ subroutine set_up_criteria_arrays_sw_T
   if( evdp.lt.200.0 ) then
     !shallow earthquake
     if ( time.gt.(Q_time+2*WIN_MAX_PERIOD) .and. &
-        time.lt. (Q_time_major_arc-3*WIN_MAX_PERIOD) ) then
-    !if (time.gt.R_time) then
-      S2N_LIMIT(i)=5*WINDOW_S2N_BASE    ! only pick big signals
-      CC_LIMIT(i)= CC_LIMIT(i)+0.05     ! only pick very similar signals
-      !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
-      DLNA_LIMIT(i)=DLNA_BASE/3.0       ! only pick small amplitude anomalies
-      STALTA_W_LEVEL(i)=STALTA_BASE*5   ! pick only distinctive arrivals
+        time.lt. (Q_time_major_arc-2*WIN_MAX_PERIOD) ) then
+    !  S2N_LIMIT(i)=5*WINDOW_S2N_BASE    ! only pick big signals
+    !  CC_LIMIT(i)= CC_LIMIT(i)+0.05     ! only pick very similar signals
+    !  !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
+    !  DLNA_LIMIT(i)=DLNA_BASE/3.0       ! only pick small amplitude anomalies
+    !  STALTA_W_LEVEL(i)=STALTA_BASE*5   ! pick only distinctive arrivals
     endif
 
-    if ( time.gt.(Q_time_major_arc+3*WIN_MAX_PERIOD) ) then
-      S2N_LIMIT(i)=3*WINDOW_S2N_BASE    ! only pick big signals
-      CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
-      !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
-      DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
-      STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
+    if ( time.gt.(Q_time_major_arc+2*WIN_MAX_PERIOD) ) then
+    !  S2N_LIMIT(i)=5*WINDOW_S2N_BASE    ! only pick big signals
+    !  CC_LIMIT(i)= CC_LIMIT(i)+0.03     ! only pick very similar signals
+    !  !TSHIFT_LIMIT(i)=TSHIFT_BASE      ! only pick small timeshifts
+    !  DLNA_LIMIT(i)=DLNA_BASE/2.0       ! only pick small amplitude anomalies
+    !  STALTA_W_LEVEL(i)=STALTA_BASE*2.5 ! pick only distinctive arrivals
     endif
   else
     !if( time.gt.(Q_time+2*WIN_MAX_PERIOD)) then
@@ -751,7 +763,8 @@ subroutine set_up_criteria_arrays_sw_T
     ! CC_LIMIT(i)= 0.95                  ! only pick very similar signals
     ! TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
     ! DLNA_LIMIT(i)=DLNA_BASE/3.0        ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*1.5     ! pick only distinctive arrivals
+     STALTA_W_LEVEL(i)=STALTA_BASE*1.8   ! pick only distinctive arrivals
+     C1_LIMIT(i)=2.0
   endif
    ! --------------------------------
 
@@ -760,7 +773,7 @@ subroutine set_up_criteria_arrays_sw_T
 
    ! reject windows before P or S arrivals
    !if (time.lt.(S_pick - 0.2*S_pick)) then
-   if (time.lt.noise_end) then
+   if (time.lt.S_arrival_time) then
      STALTA_W_LEVEL(i)=1     ! to avoid windows before P or S arrivals
    endif
 
@@ -850,6 +863,9 @@ subroutine set_up_criteria_arrays_sw_Z
   !noise_end  = P_pick - 0.1*P_pick ! vertical and radial comp.
   !noise_end  = S_pick - 0.2*S_pick ! transverse comp.
   ! noise_start = b
+ !modify noise_end and signal_start
+ noise_end=ph_times(1)-WIN_MAX_PERIOD/4.0
+ signal_start = noise_end
 
 
  ! --------------------------------
@@ -906,7 +922,8 @@ subroutine set_up_criteria_arrays_sw_Z
     ! CC_LIMIT(i)= 0.95                  ! only pick very similar signals
      !TSHIFT_LIMIT(i)=TSHIFT_BASE/2.0    ! only pick small timeshifts
      !DLNA_LIMIT(i)=DLNA_BASE/2.0        ! only pick small amplitude anomalies
-     STALTA_W_LEVEL(i)=STALTA_BASE*1.5    ! pick only distinctive arrivals
+     STALTA_W_LEVEL(i)=STALTA_BASE*1.8   ! pick only distinctive arrivals
+     C1_LIMIT(i)=2.0
    endif
    ! --------------------------------
 
@@ -963,6 +980,8 @@ subroutine set_up_criteria_arrays_default
   double precision :: R_vel, R_time
   double precision :: Q_vel, Q_time
 
+  double precision :: arrival_time
+
 ! -----------------------------------------------------------------
 ! This is the basic version of the subroutine - no variation with time
 ! -----------------------------------------------------------------
@@ -973,12 +992,27 @@ subroutine set_up_criteria_arrays_default
     TSHIFT_LIMIT(i)=TSHIFT_BASE
     STALTA_W_LEVEL(i)=STALTA_BASE
     S2N_LIMIT(i)=WINDOW_S2N_BASE
+    C1_LIMIT(i)=C_1
   enddo
 
   ! these values will be used for signal2noise calculations
   ! if DATA_QUALITY=.true.
   if (DATA_QUALITY) then
-    !noise_end=ph_times(1)-WIN_MAX_PERIOD
+    !if(kcmpnm(3:3).eq.'T')then
+      !if T component, then noise end at the arrival name starting with "S"
+      !call find_phase_arrival("S", arrival_time)
+      !print *, "S_time, phtime: ", S_pick, arrival_time
+      !noise_end=arrival_time-WIN_MAX_PERIOD/2
+      !noise_end=ph_times(1)-WIN_MAX_PERIOD/2
+    !else
+      !call find_phase_arrival("P", arrival_time)
+      !if R or Z component, then noise end at P arrivel
+      !if(abs(arrival_time-ph_times(1)).gt.0.1)then
+      !  print *,"bug here!"
+      !endif
+      !noise_end=ph_times(1)-WIN_MAX_PERIOD/2
+    !endif
+    !print *, "phase, time: ", noise_end
     noise_end=ph_times(1)-WIN_MAX_PERIOD/2
     noise_start=b
     signal_end=b+(npts-1)*dt
@@ -991,3 +1025,112 @@ subroutine set_up_criteria_arrays_default
 end subroutine
 ! -------------------------------------------------------------
 
+
+subroutine modify_water_level_arrays_RSS
+
+  use seismo_variables
+
+  integer :: i
+  double precision :: time
+  double precision :: R_time, Q_time
+  double precision :: R_vel, Q_vel
+
+  R_vel=4.0
+  R_time=dist_km/R_vel
+  !R_time_major_arc=(CIRCUM_EARTH-dist_km)/R_vel
+  !print *, "R_time and R_time_ac:", R_time, R_time_major_arc
+  ! --------------------------------
+  ! Set approximate start of love wave arrival
+  ! Q_vel=4.0
+  Q_vel=4.5
+  Q_time=dist_km/Q_vel
+
+  if( kcmpnm(3:3).eq."Z" .or. kcmpnm(3:3).eq.'R' )then
+    time_zone=R_time
+  else if( kcmpnm(3:3).eq."T" )then
+    time_zone=Q_time
+  endif
+  if(FOCUS_PART.eq.1)then
+  !FOCUS_PART==1, focus on body wave and surface wave
+  !set the stalat_limit to 1 after surface wave to reject those windows
+    do i = 1, npts
+      time=b+(i-1)*dt
+      if(time.gt.time_zone+5*MAX_WIN_PERIOD)then
+        STALTA_W_LEVEL(i)=1.0
+      endif
+    enddo
+  else if(FOCUS_PART.eq.2)then
+  !FOCUS_PART==2, focus on phases after surface wave
+  !reject windows before that
+    do i = 1, npts
+      time=b+(i-1)*dt
+      if(time.lt.time_zone+5*MAX_WIN_PERIOD)then
+        STALTA_W_LEVEL(i)=1.0
+      endif
+    enddo
+  endif
+
+end subroutine modify_water_level_arrays_RSS
+
+subroutine modify_lp_env_RSS
+
+  use seismo_variables
+
+  integer :: i
+  double precision :: time_zone
+  double precision :: R_time, Q_time
+  double precision :: R_vel, Q_vel
+  double precision :: damp_factor
+
+  R_vel=4.0
+  R_time=dist_km/R_vel
+  Q_vel=4.5
+  Q_time=dist_km/Q_vel
+
+  if( kcmpnm(3:3).eq."Z" .or. kcmpnm(3:3).eq.'R' )then
+    time_zone=R_time
+  elseif( kcmpnm(3:3).eq."T" )then
+    time_zone=Q_time
+  endif
+
+  do i=1, npts
+    time=b+(i-1)*dt
+    if( time.lt.time_zone+3*MAX_WIN_PERIOD)then
+      env_synt_lp(i)=0.0
+    elseif( (time.gt.time_zone+3*MAX_WIN_PERIOD) .and. &
+        (time.lt.time_zone+5*MAX_WIN_PERIOD) )then
+        damp_factor=(time-time_zone-3*MAX_WIN_PERIOD)/(2*MAX_WIN_PERIOD)
+        env_synt_lp(i)=evn_synt_lp*damp_factor
+    endif
+  enddo
+
+end subroutine modify_lp_env_RSS
+
+subroutine find_phase_arrival(phase, time)
+
+  use seismo_variables
+
+  character(len=*) :: phase
+  double precision :: time
+
+  integer :: i, loc
+
+  !do i=1, num_phases
+  !  print *, "phase_name, time: ", trim(ph_names(i)), ph_times(i)
+  !enddo
+
+  !if(trim(phase).eq."S")then
+  !  !find first S or s arrival
+
+  do i=1,num_phases
+    if(ph_names(i)(1:1).eq.phase(1:1))then
+      time=ph_times(i)
+      loc=i
+      exit
+    endif
+  enddo
+
+  print *, "first arrival: ", trim(ph_names(1)),ph_times(1)
+  print *, "loc, name, time: ",loc, trim(ph_names(loc)), ph_times(loc)
+
+end subroutine find_phase_arrival

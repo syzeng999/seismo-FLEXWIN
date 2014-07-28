@@ -3,6 +3,9 @@
 !
 !
 !----------------------------------------------------------------------
+module select_window_stalta_subs
+
+contains
 
   subroutine select_windows_stalta2()
   use seismo_variables
@@ -95,7 +98,7 @@
 
      ! remove small windows
      if(DEBUG) print *, "Rejecting on size "
-     call reject_on_window_width(nwin,iM,iL,iR,C_1)
+     call reject_on_window_width(nwin,iM,iL,iR,C1_LIMIT)
      if (nwin.eq.0) then
         write(*,*) 'NO WINDOWS SELECTED FOR THIS TRACE'
         num_win = 0
@@ -129,7 +132,7 @@
      ! REPEAT: remove small windows, since curtailing may have shrunk them
      ! NOTE: perhaps this only needs to be done once (here)
      if(DEBUG) print *, "Rejecting on size (REPEAT)"
-     call reject_on_window_width(nwin,iM,iL,iR,C_1)
+     call reject_on_window_width(nwin,iM,iL,iR,C1_LIMIT)
      if (nwin.eq.0) then
         write(*,*) 'NO WINDOWS SELECTED FOR THIS TRACE'
         num_win = 0
@@ -568,20 +571,26 @@
 
   integer, intent(inout) :: nwin
   integer, dimension(*), intent(inout) :: iM, iL, iR
-  double precision, intent(in) :: c_value
+  double precision, intent(in) :: c_value(:)
 
   integer :: iwin
   integer :: nwin_new
   integer, dimension(NWINDOWS) :: iM_new, iL_new, iR_new
   logical :: accept
   double precision :: window_length
+  integer :: mid_point
 
-  window_length = c_value * WIN_MIN_PERIOD / dt
+  !window_length = c_value * WIN_MIN_PERIOD / dt
 
   nwin_new = 0
   do iwin = 1,nwin
     accept = .true.
     ! check window length against minimum acceptable length
+    mid_point=iM(iwin)
+    !print *, "mid_point:", mid_point
+    !print *, c_value(:)
+    window_length = c_value(mid_point) * WIN_MIN_PERIOD / dt
+    !print *, "mid_point and window_length:", mid_point, window_length
     if (iR(iwin) - iL(iwin) .lt. window_length  ) then
       accept = .false.
     end if
@@ -1252,3 +1261,5 @@
    endif
 
  end subroutine display_windows
+
+end module select_window_stalta_subs

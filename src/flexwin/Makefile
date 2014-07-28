@@ -30,8 +30,9 @@ MPICC = mpicc
 #CFLAGS= -g -O0 -check all
 
 _OBJ = 	copy_float.o user_parameters.o \
-			 	seismo_subs.o user_functions.o maxima.o travel_times.o \
-				select_windows_stalta2.o flexwin.o
+			 	seismo_subs.o io_subs.o user_functions.o \
+				maxima.o travel_times.o \
+				select_windows_stalta2.o flexwin_interface_subs.o flexwin.o
 
 OBJ = $(patsubst %, ${OBJDIR}/%, $(_OBJ))
 

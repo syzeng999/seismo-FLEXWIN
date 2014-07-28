@@ -31,7 +31,8 @@ CFLAGS= -g -O0 -check all
 
 _OBJ = flexwin_struct.o \
 			 win_io_subs.o \
-			 distaz.o
+			 distaz.o \
+			 var_main_mod.o
 
 OBJ = $(patsubst %, ${OBJDIR}/%, $(_OBJ))
 

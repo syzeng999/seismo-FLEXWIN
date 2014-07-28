@@ -7,8 +7,8 @@
 #=================================================================
 
 #INPUT file info
-OBSD_FILE                   = /tigress/lei/EBRU/Test/DATA/T060-120s/201011100405A_obs.sac.bp
-SYNT_FILE                   = /tigress/lei/EBRU/Test/DATA/T060-120s/201011100405A_sem.sac.bp
+OBSD_FILE                   = DATA/201001122153A_obs.bp
+SYNT_FILE                   = DATA/201001122153A_sem.bp
 
 #OUTPUT directory(the window file)
 FLEXWIN_OUTDIR              = /tigress/lei/EBRU/Test/window
@@ -16,4 +16,8 @@ FLEXWIN_OUTDIR              = /tigress/lei/EBRU/Test/window
 #PERIOD INFO(seconds)
 PERIOD_BEGIN                = 60.0
 PERIOD_END                  = 120.0
+
+#flag
+WRITE_SINGLE_WIN_FILE       = .true.
+REMOVE_SURFACE_WAVE         = .false.
 

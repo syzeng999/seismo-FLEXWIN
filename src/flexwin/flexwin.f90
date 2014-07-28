@@ -14,26 +14,34 @@ contains
                       synt_in, npts1_in, dt1_in, b1_in, &
                       evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
                       kstnm_in, knetwk_in, kcmpnm_in, &
-                      P_pick_in, S_pick_in, &
-                      flexwin_par_all,win)
+                      P_pick_in, S_pick_in, event_name,&
+                      flexwin_par_all,win, REMOVE_SW_IN)
 
     use flexwin_struct 
     use user_parameters
     use seismo_variables
+    use select_window_stalta_subs
     implicit none
 
-    real,intent(in) :: synt_in(:), obs_in(:)
-    real,intent(in) :: dt2_in, dt1_in, b2_in, b1_in
+    double precision, intent(in) :: synt_in(:), obs_in(:)
+    double precision, intent(in) :: dt2_in, dt1_in, b2_in, b1_in
     integer,intent(in) :: npts2_in, npts1_in
     character(len=*),intent(in) :: kstnm_in, knetwk_in, kcmpnm_in
-    real :: evla_in, evlo_in, stla_in, stlo_in, evdp_in
-    real :: P_pick_in, S_pick_in
+    double precision :: evla_in, evlo_in, stla_in, stlo_in, evdp_in
+    double precision :: P_pick_in, S_pick_in
+    character(len=*) :: event_name
 
     type(win_info) :: win
     type(flexwin_par_struct_all) :: flexwin_par_all
+    logical :: REMOVE_SW_IN !remove surface wave to select window after it
 
     integer :: i
     integer :: ierr
+    character(len=1000) :: basename, basedir !basename for extra ouput file
+    character(len=20) :: P1, P2
+
+    integer :: num_win_temp
+    double precision :: ts_temp(NWINDOWS), te_temp(NWINDOWS)
     
     print *, "============"
     call copy_flexwin_par_to_local(flexwin_par_all, kcmpnm_in)
@@ -43,7 +51,7 @@ contains
                       synt_in, npts1_in, dt1_in, b1_in, &
                       evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
                       kstnm_in, knetwk_in, kcmpnm_in, &
-                      P_pick_in, S_pick_in)
+                      P_pick_in, S_pick_in, REMOVE_SW_IN)
 
     write(*,*) "FLEXWIN--station, network, cmp: ", trim(kstnm), ".", trim(knetwk),&
           ".", trim(kcmpnm)
@@ -57,17 +65,36 @@ contains
     !do i=1,obsd_all%nrecords
 
      !check the consistency between obs and synt
-     call check_and_filter_data(ierr)
-     if(ierr.eq.1)then
-       print *,"Data check failed. Skip this record now!"
-       win%num_win=0
-       return
-     endif
+    call check_and_filter_data(ierr)
+    if(ierr.eq.1)then
+      print *,"Data check failed. Skip this record now!"
+      win%num_win=0
+      return
+    endif
 
-     if (DEBUG) write(*,*) 'DEBUG : selecting windows'
-     call select_windows_stalta2()
-
-        !if(MAKE_SEISMO_PLOTS) then
+    if (DEBUG) write(*,*) 'DEBUG : selecting windows'
+    if(.not.REMOVE_SW)then
+      !select window directly
+      call select_windows_stalta2()
+    else
+      !first focus on body wave and surface wave
+      print *, "STAGE1: FOCUS on BODY wave and SURFACE wave"
+      FOCUS_PART=1
+      call select_windows_stalta2()
+      num_win_temp=num_win
+      ts_temp(1:num_win)=win_start(1:num_win)
+      te_temp(1:num_win)=win_end(1:num_win)
+      print *,"STAGE1 num_win:", num_win
+      !then focus on phases after surface wave
+      !num_win=0
+      !print *, "STAGE2: FOCUS on afterward phases"
+      !FOCUS_PART=2
+      !call select_windows_stalta2()
+      !print *,"STAGE2 num_win:", num_win
+      !!then combine two stage
+      !call combine_windows(num_win_temp, ts_temp, te_temp, &
+      !  num_win, win_start, win_end)
+    endif
         !  if (DEBUG) write(*,*) 'DEBUG : writing output seismos'
         !  call write_seismos_gmt(basename(i))
         !endif
@@ -84,18 +111,38 @@ contains
         !print *,win_end(1:num_win)
     
         !print *,win%num_win
-      win%num_win=num_win
-      !print *,"write out num"
-      if(num_win/=0)then
-        allocate(win%t_start(num_win))
-        allocate(win%t_end(num_win))
-        win%t_start(1:num_win)=win_start(1:num_win)
-        !print *,"write out start time"
-        win%t_end(1:num_win)=win_end(1:num_win)
-        !print *,"write out end time"
-      endif
+    win%num_win=num_win
+    !print *,"write out num"
+    if(num_win/=0)then
+      allocate(win%t_start(num_win))
+      allocate(win%t_end(num_win))
+      allocate(win%tshift(num_win))
+      allocate(win%cc(num_win))
+      allocate(win%dlnA(num_win))
+      win%t_start(1:num_win)=win_start(1:num_win)
+      !print *,"write out start time"
+      win%t_end(1:num_win)=win_end(1:num_win)
+      !print *,"write out end time"
+      win%Tshift(1:num_win)=Tshift(1:num_win)
+      win%cc(1:num_win)=CC(1:num_win)
+      win%dlnA(1:num_win)=dlnA(1:num_win)
+    endif
 
-    !enddo
+
+    !write out extra file
+    write(P1,'(I3.3)') int(WIN_MIN_PERIOD)
+    write(P2,'(I3.3)') int(WIN_MAX_PERIOD)
+    basedir='./OUTPUT/'//trim(event_name)//"_"//trim(P1)&
+        //"_"//trim(P2)
+    call system('mkdir -p '//basedir//'')
+    if(MAKE_SEISMO_PLOTS) then
+      kcmpnm(1:2)="LH"
+      basename=trim(basedir)//"/"//trim(kstnm)//"."//trim(knetwk)//&
+        "."//trim(kcmpnm)
+      !print *, "basename:", trim(basename)
+      call write_seismos_gmt(basename)
+    endif
+
     !print *,"write out end"
     !print *,"=============================="
 
@@ -106,37 +153,40 @@ contains
                   synt_in, npts1_in, dt1_in, b1_in, &
                   evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
                   kstnm_in, knetwk_in, kcmpnm_in, &
-                  P_pick_in, S_pick_in)
+                  P_pick_in, S_pick_in, REMOVE_SW_IN)
 
     use seismo_variables
     implicit none
 
-    real,intent(in) :: synt_in(*), obs_in(*)
-    real ,intent(in) :: dt2_in, dt1_in, b2_in, b1_in
+    double precision,intent(in) :: synt_in(*), obs_in(*)
+    double precision ,intent(in) :: dt2_in, dt1_in, b2_in, b1_in
     integer,intent(in) :: npts2_in, npts1_in
     character(len=*),intent(in) :: kstnm_in, knetwk_in, kcmpnm_in 
-    real :: evla_in, evlo_in, stla_in, stlo_in, evdp_in
-    real :: P_pick_in, S_pick_in
+    double precision :: evla_in, evlo_in, stla_in, stlo_in, evdp_in
+    double precision :: P_pick_in, S_pick_in
+    logical :: REMOVE_SW_IN
 
     integer :: string_len
         
-    obs(1:npts2_in)=dble(obs_in(1:npts2_in))
+    obs(1:npts2_in)=obs_in(1:npts2_in)
     npts2=npts2_in
-    dt2=dble(dt2_in)
-    b2=dble(b2_in)
-    synt(1:npts1_in)=dble(synt_in(1:npts1_in))
+    dt2=dt2_in
+    b2=b2_in
+    synt(1:npts1_in)=synt_in(1:npts1_in)
     npts1=npts1_in
-    dt1=dble(dt1_in)
-    b1=dble(b1_in)
+    dt1=dt1_in
+    b1=b1_in
 
-    evla=evla_in
-    evlo=evlo_in
-    evdp=evdp_in
-    stla=stla_in
-    stlo=stlo_in
+    evla=real(evla_in)
+    evlo=real(evlo_in)
+    evdp=real(evdp_in)
+    stla=real(stla_in)
+    stlo=real(stlo_in)
 
-    P_pick=P_pick_in
-    S_pick=S_pick_in
+    P_pick=real(P_pick_in)
+    S_pick=real(S_pick_in)
+
+    REMOVE_SW = REMOVE_SW_IN
 
     string_len=min(len(kstnm),len(kstnm_in))
     !print *,"string_len station",string_len
@@ -205,6 +255,8 @@ contains
     elseif(kcmpnm_in(3:3)=="T")then
       call copy_flexwin_par_to_local_sub(flexwin_par_all%T)
     else
+      print * ,"kcmpnm_in:",trim(kcmpnm_in)
+      print * ,"can't find"
       stop
     endif
 
@@ -251,6 +303,31 @@ contains
     WEIGHT_N_WINDOWS  = flexwin_par%WEIGHT_N_WINDOWS
 
   end subroutine copy_flexwin_par_to_local_sub
+
+
+  subroutine combine_windows(nw1,ts1,te1,nw2,ts2,te2)
+
+  use user_parameters, only : NWINDOWS
+
+  integer :: nw1, nw2, nw
+  double precision, dimension(:) :: ts1, te1, ts2, te2
+  double precision, dimension(NWINDOWS) :: ts, te
+  integer :: i
+
+  nw=nw1+nw2
+  ts(1:nw1)=ts1(1:nw1)
+  te(1:nw1)=te1(1:nw1)
+  
+  do i=1,nw2
+    ts(i+nw1)=ts2(i)
+    te(i+nw1)=ts2(i)
+  enddo
+
+  nw2=nw
+  ts2(1:nw)=ts(1:nw)
+  te2(1:nw)=te(1:nw)
+
+  end subroutine combine_windows
   
 !----------------------------------------------------------------------
 end module flexwin_subs

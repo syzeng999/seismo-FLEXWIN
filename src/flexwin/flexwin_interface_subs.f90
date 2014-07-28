@@ -1,4 +1,4 @@
-module main_subs
+module flexwin_interface_subs
 
   implicit none
 
@@ -123,7 +123,6 @@ subroutine read_flexwin_parfile_mpi(flexwin_par_all, min_period, &
   character(len=150) :: fn
 
   double precision :: aver_event_dpt
-
 
   aver_event_dpt=sum(event_dpt(1:nrecords))/nrecords
   !check if the event_dpt are simliar
@@ -385,4 +384,4 @@ end subroutine read_flexwin_parfile_mpi
   end subroutine
 !----------------------------------------------------------------------
 
-end module main_subs
+end module flexwin_interface_subs

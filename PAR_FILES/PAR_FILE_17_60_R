@@ -58,7 +58,7 @@ WINDOW_S2N_BASE                 = 1.5
 
 # -------------------------------------------------------------
 # Fine tuning constants 
-C_0  (internal minima)          = 0.7
+C_0  (internal minima)          = 1.0
 C_1  (small windows)            = 4.0
 C_2  (prominence)               = 0.0
 C_3a (separation height)        = 1.0 

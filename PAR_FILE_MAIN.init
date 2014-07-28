@@ -7,8 +7,8 @@
 #=================================================================
 
 #INPUT file info
-OBSD_FILE                   = /tigress/lei/EBRU/Test/DATA/T060-120s/201011100405A_obs.sac.bp
-SYNT_FILE                   = /tigress/lei/EBRU/Test/DATA/T060-120s/201011100405A_sem.sac.bp
+OBSD_FILE                   = /tigress/lei/EBRU/Test/DATA/T060-120s/200802101222A_obs.sac.bp
+SYNT_FILE                   = /tigress/lei/EBRU/Test/DATA/T060-120s/200802101222A_sem.sac.bp
 
 #OUTPUT directory(the window file)
 FLEXWIN_OUTDIR              = /tigress/lei/EBRU/Test/window

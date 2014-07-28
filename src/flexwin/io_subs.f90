@@ -242,8 +242,8 @@
   write(15,'("# T_END = ",f10.2)') b+(npts-1)*dt
 
   do i = 1, npts
-    write(15,'(f10.2,6(2x,e13.6))') b+(i-1)*dt, STA_LTA(i), STALTA_W_LEVEL(i), &
-    CC_LIMIT(i), TSHIFT_LIMIT(i), DLNA_LIMIT(i), S2N_LIMIT(i)
+    write(15,'(f10.2,7(2x,e13.6))') b+(i-1)*dt, STA_LTA(i), STALTA_W_LEVEL(i), &
+    CC_LIMIT(i), TSHIFT_LIMIT(i), DLNA_LIMIT(i), S2N_LIMIT(i), C1_LIMIT(i)
   end do
 
   close(15)

@@ -11,3 +11,6 @@ log
 cpu_time
 *.bp
 *log*
+PAR_FILE_MAIN
+OUTPUT
+OUTPUT/*

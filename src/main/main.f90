@@ -15,6 +15,7 @@ program main
   use asdf_read_subs
 
   use flexwin_subs
+  use fw_interface
   use flexwin_interface_subs
 
   use mpi
@@ -79,53 +80,9 @@ program main
   obsd_all%max_period=PERIOD_END
   print *, "PERIOD:", obsd_all%min_period, obsd_all%max_period
 
-  !--------------------------.
-  !read parfile              !
-  !--------------------------'
-  call read_flexwin_parfile_mpi(flexwin_par_all, obsd_all%min_period,&
-        obsd_all%max_period, obsd_all%event_dpt, obsd_all%nrecords, &
-        rank, comm, ierr)
-
-  call MPI_Barrier(comm,ierr)
-
-  allocate(win_all(obsd_all%nrecords))
-
-  !--------------------------.
-  !FLEXWIN                   !
-  !--------------------------'
-  if(rank.eq.0) then
-    print *,"-----------------"
-    print *,"RUNNING FLEXWIN"
-    print *,"-----------------"
-  endif
-
-  do i=1, obsd_all%nrecords
-   !call flexwin subroutine
-     call flexwin(obsd_all%records(i)%record,obsd_all%npoints(i),obsd_all%sample_rate(i),obsd_all%begin_value(i),&
-        synt_all%records(i)%record,synt_all%npoints(i),synt_all%sample_rate(i),synt_all%begin_value(i),&
-        obsd_all%event_lat(i), obsd_all%event_lo(i), obsd_all%event_dpt(i),&
-        obsd_all%receiver_lat(i),obsd_all%receiver_lo(i),&
-        obsd_all%receiver_name_array(i),obsd_all%network_array(i),obsd_all%component_array(i),&
-        synt_all%P_pick(i),synt_all%S_pick(i), synt_all%event,&
-        flexwin_par_all,win_all(i), REMOVE_SURFACE_WAVE )
-  enddo
-
-  call MPI_Barrier(comm, ierr)
-
-  !write out window info
-  if(rank.eq.0) print *, "Write out WIN"
-  call win_write_mt(FLEXWIN_OUTDIR, obsd_all%event, obsd_all%min_period,&
-        obsd_all%max_period, obsd_all%nrecords,&
-        obsd_all%receiver_name_array, obsd_all%network_array,&
-        obsd_all%component_array, obsd_all%receiver_id_array,&
-        win_all, rank)
-  if(WRITE_SINGLE_WIN_FILE) then
-    call win_write_single_file(FLEXWIN_OUTDIR, obsd_all%event, obsd_all%min_period,&
-          obsd_all%max_period, obsd_all%nrecords,&
-          obsd_all%receiver_name_array, obsd_all%network_array,&
-          obsd_all%component_array, obsd_all%receiver_id_array,&
-          win_all, rank)
-  endif
+  !flexwin interface
+  call flexwin_interface(obsd_all, synt_all, win_all, &
+        rank, nproc, comm, ierr)
 
   !--------------------------.
   !finalize mpi              !

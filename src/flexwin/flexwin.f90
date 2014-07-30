@@ -15,7 +15,7 @@ contains
                       evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
                       kstnm_in, knetwk_in, kcmpnm_in, &
                       P_pick_in, S_pick_in, event_name,&
-                      flexwin_par_all,win, REMOVE_SW_IN)
+                      flexwin_par_all,win)
 
     use flexwin_struct 
     use user_parameters
@@ -33,7 +33,7 @@ contains
 
     type(win_info) :: win
     type(flexwin_par_struct_all) :: flexwin_par_all
-    logical :: REMOVE_SW_IN !remove surface wave to select window after it
+    !logical :: REMOVE_SW_IN !remove surface wave to select window after it
 
     integer :: i
     integer :: ierr
@@ -51,7 +51,7 @@ contains
                       synt_in, npts1_in, dt1_in, b1_in, &
                       evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
                       kstnm_in, knetwk_in, kcmpnm_in, &
-                      P_pick_in, S_pick_in, REMOVE_SW_IN)
+                      P_pick_in, S_pick_in)
 
     write(*,*) "FLEXWIN--station, network, cmp: ", trim(kstnm), ".", trim(knetwk),&
           ".", trim(kcmpnm)
@@ -73,28 +73,29 @@ contains
     endif
 
     if (DEBUG) write(*,*) 'DEBUG : selecting windows'
-    if(.not.REMOVE_SW)then
-      !select window directly
-      call select_windows_stalta2()
-    else
-      !first focus on body wave and surface wave
-      print *, "STAGE1: FOCUS on BODY wave and SURFACE wave"
-      FOCUS_PART=1
-      call select_windows_stalta2()
-      num_win_temp=num_win
-      ts_temp(1:num_win)=win_start(1:num_win)
-      te_temp(1:num_win)=win_end(1:num_win)
-      print *,"STAGE1 num_win:", num_win
-      !then focus on phases after surface wave
-      !num_win=0
-      !print *, "STAGE2: FOCUS on afterward phases"
-      !FOCUS_PART=2
-      !call select_windows_stalta2()
-      !print *,"STAGE2 num_win:", num_win
-      !!then combine two stage
-      !call combine_windows(num_win_temp, ts_temp, te_temp, &
-      !  num_win, win_start, win_end)
-    endif
+    call select_windows_stalta2()
+    !if(.not.REMOVE_SW)then
+    !  !select window directly
+    !  call select_windows_stalta2()
+    !else
+    !  !first focus on body wave and surface wave
+    !  print *, "STAGE1: FOCUS on BODY wave and SURFACE wave"
+    !  FOCUS_PART=1
+    !  call select_windows_stalta2()
+    !  num_win_temp=num_win
+    !  ts_temp(1:num_win)=win_start(1:num_win)
+    !  te_temp(1:num_win)=win_end(1:num_win)
+    !  print *,"STAGE1 num_win:", num_win
+    !  !then focus on phases after surface wave
+    !  !num_win=0
+    !  !print *, "STAGE2: FOCUS on afterward phases"
+    !  !FOCUS_PART=2
+    !  !call select_windows_stalta2()
+    !  !print *,"STAGE2 num_win:", num_win
+    !  !!then combine two stage
+    !  !call combine_windows(num_win_temp, ts_temp, te_temp, &
+    !  !  num_win, win_start, win_end)
+    !endif
         !  if (DEBUG) write(*,*) 'DEBUG : writing output seismos'
         !  call write_seismos_gmt(basename(i))
         !endif
@@ -153,7 +154,7 @@ contains
                   synt_in, npts1_in, dt1_in, b1_in, &
                   evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
                   kstnm_in, knetwk_in, kcmpnm_in, &
-                  P_pick_in, S_pick_in, REMOVE_SW_IN)
+                  P_pick_in, S_pick_in)
 
     use seismo_variables
     implicit none
@@ -164,7 +165,7 @@ contains
     character(len=*),intent(in) :: kstnm_in, knetwk_in, kcmpnm_in 
     double precision :: evla_in, evlo_in, stla_in, stlo_in, evdp_in
     double precision :: P_pick_in, S_pick_in
-    logical :: REMOVE_SW_IN
+    !logical :: REMOVE_SW_IN
 
     integer :: string_len
         
@@ -186,7 +187,7 @@ contains
     P_pick=real(P_pick_in)
     S_pick=real(S_pick_in)
 
-    REMOVE_SW = REMOVE_SW_IN
+    !REMOVE_SW = REMOVE_SW_IN
 
     string_len=min(len(kstnm),len(kstnm_in))
     !print *,"string_len station",string_len

@@ -32,7 +32,8 @@ MPICC = mpicc
 _OBJ = 	copy_float.o user_parameters.o \
 			 	seismo_subs.o io_subs.o user_functions.o \
 				maxima.o travel_times.o \
-				select_windows_stalta2.o flexwin_interface_subs.o flexwin.o
+				select_windows_stalta2.o flexwin_interface_subs.o flexwin.o \
+				flexwin_interface.o
 
 OBJ = $(patsubst %, ${OBJDIR}/%, $(_OBJ))
 

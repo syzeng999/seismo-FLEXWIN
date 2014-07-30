@@ -22,9 +22,10 @@ contains
 !> @param[in] knetwk_in network name
 !> @param[in] kcmpnm_in component name
 !> @param[in] event_name      event_name
-!> @param[in] flexwin_par_all flexwin paramter settings for all three components
+!> @param[in] flexwin_par_all flexwin paramter settings for all three
+!!              components(see structure defined in /shared/flexwin_structure.f90)
 !> @param[out] win window data structure, containing number of window and window
-!!             time(see structure defined in /shared/flexwin_structure.f90)
+!!              time(see structure defined in /shared/flexwin_structure.f90)
 
   subroutine flexwin(obs_in, npts2_in, dt2_in, b2_in, &
                       synt_in, npts1_in, dt1_in, b1_in, &

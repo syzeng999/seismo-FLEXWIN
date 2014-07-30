@@ -19,5 +19,5 @@ PERIOD_END                  = 120.0
 
 #flag
 WRITE_SINGLE_WIN_FILE       = .true.
-REMOVE_SURFACE_WAVE         = .false.
+#REMOVE_SURFACE_WAVE         = .false.
 

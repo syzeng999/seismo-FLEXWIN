@@ -3,19 +3,34 @@ module flexwin_subs
 contains
 !----------------------------------------------------------------------
 !> Modifiedy by Wenjie Lei
-!> Change flexwin into a subroutine, called by the workflow
-!> start from the very basic, meanign the input and output variables are basic
+!! Change flexwin into a subroutine, called by the workflow
+!! start from the very basic, input and output varaibals are scalars and arrays
 
-!> @param obs synt, obs and all the other info
-!> @param npts2 num_win, win_start, win_end
+!> @param[in] obs_in    observed trace
+!> @param[in] npts2_in  number of points of the observed trace
+!> @param[in] dt2_in    sample rate of observed trace
+!> @param[in] b2_in     begin time of observed trace
+!> @param[in] synt_in   synthetic trace
+!> @param[in] npts1_in  number of points of the synthetic trace
+!> @param[in] dt1_in    sample rate of synthetic trace
+!> @param[in] evla_in   event latitude
+!> @param[in] evlo_in   event longitude
+!> @param[in] evdp_in   event depth
+!> @param[in] stla_in   station latitude
+!> @param[in] stlo_in   station longitude
+!> @param[in] kstnm_in  station name
+!> @param[in] knetwk_in network name
+!> @param[in] kcmpnm_in component name
+!> @param[in] event_name      event_name
+!> @param[in] flexwin_par_all flexwin paramter settings for all three components
+!> @param[out] win window data structure, containing number of window and window
+!!             time(see structure defined in /shared/flexwin_structure.f90)
 
-!> @author Alesia(Original) Wenjie Lei()
   subroutine flexwin(obs_in, npts2_in, dt2_in, b2_in, &
                       synt_in, npts1_in, dt1_in, b1_in, &
                       evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
                       kstnm_in, knetwk_in, kcmpnm_in, &
-                      P_pick_in, S_pick_in, event_name,&
-                      flexwin_par_all,win)
+                      event_name, flexwin_par_all, win)
 
     use flexwin_struct 
     use user_parameters
@@ -28,7 +43,7 @@ contains
     integer,intent(in) :: npts2_in, npts1_in
     character(len=*),intent(in) :: kstnm_in, knetwk_in, kcmpnm_in
     double precision :: evla_in, evlo_in, stla_in, stlo_in, evdp_in
-    double precision :: P_pick_in, S_pick_in
+    !double precision :: P_pick_in, S_pick_in
     character(len=*) :: event_name
 
     type(win_info) :: win
@@ -50,8 +65,7 @@ contains
     call copy_var_to_module_var(obs_in, npts2_in, dt2_in, b2_in, &
                       synt_in, npts1_in, dt1_in, b1_in, &
                       evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
-                      kstnm_in, knetwk_in, kcmpnm_in, &
-                      P_pick_in, S_pick_in)
+                      kstnm_in, knetwk_in, kcmpnm_in )
 
     write(*,*) "FLEXWIN--station, network, cmp: ", trim(kstnm), ".", trim(knetwk),&
           ".", trim(kcmpnm)
@@ -153,8 +167,7 @@ contains
   subroutine copy_var_to_module_var(obs_in, npts2_in, dt2_in, b2_in, &
                   synt_in, npts1_in, dt1_in, b1_in, &
                   evla_in, evlo_in, evdp_in, stla_in, stlo_in, &
-                  kstnm_in, knetwk_in, kcmpnm_in, &
-                  P_pick_in, S_pick_in)
+                  kstnm_in, knetwk_in, kcmpnm_in )
 
     use seismo_variables
     implicit none
@@ -164,7 +177,7 @@ contains
     integer,intent(in) :: npts2_in, npts1_in
     character(len=*),intent(in) :: kstnm_in, knetwk_in, kcmpnm_in 
     double precision :: evla_in, evlo_in, stla_in, stlo_in, evdp_in
-    double precision :: P_pick_in, S_pick_in
+    !double precision :: P_pick_in, S_pick_in
     !logical :: REMOVE_SW_IN
 
     integer :: string_len
@@ -184,8 +197,8 @@ contains
     stla=real(stla_in)
     stlo=real(stlo_in)
 
-    P_pick=real(P_pick_in)
-    S_pick=real(S_pick_in)
+    !P_pick=real(P_pick_in)
+    !S_pick=real(S_pick_in)
 
     !REMOVE_SW = REMOVE_SW_IN
 

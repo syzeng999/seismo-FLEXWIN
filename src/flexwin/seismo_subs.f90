@@ -12,10 +12,10 @@
   !really hard. So if you turn on the REMOVE_SW flag: the strategy would be
   !first select phases before surface waves(include surface waves) and then 
   !select phases after surface waves.
-  logical :: REMOVE_SW
+  !logical :: REMOVE_SW
   !if FOCUS PART==1, then focus on body wave and surface wave
   !if FOCUS PART==2, then focus on phases after surface wave
-  integer :: FOCUS_PART
+  !integer :: FOCUS_PART
 
   !=========================================
   ! Declaration of parameters from PAR_FILE
@@ -1051,13 +1051,13 @@ end subroutine calc_criteria_original
 
   call prepare_lp_env
 
-  if(REMOVE_SW)then
-    if(FOCUS_PART.eq.2)then
-      !if we focus on phases after surface waves, then change envelope to 0
-      !before those phases
-      call modify_lp_env_RSS
-    endif
-  endif
+  !if(REMOVE_SW)then
+  !  if(FOCUS_PART.eq.2)then
+  !    !if we focus on phases after surface waves, then change envelope to 0
+  !    !before those phases
+  !    call modify_lp_env_RSS
+  !  endif
+  !endif
 
   call prepare_sta_lta
 
@@ -1065,9 +1065,9 @@ end subroutine calc_criteria_original
 ! file)
   call set_up_criteria_arrays
 
-  if(REMOVE_SW)then
-    call modify_water_level_arrays_RSS
-  endif
+  !if(REMOVE_SW)then
+  !  call modify_water_level_arrays_RSS
+  !endif
 
   end subroutine
 

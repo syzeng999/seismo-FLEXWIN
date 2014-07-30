@@ -73,14 +73,13 @@ program main
     print *, "/event:", trim(obsd_all%event)
   endif
   print *, "rank, number of records: ", rank, obsd_all%nrecords
-  !stop
 
-  !need to be removed in the future
+  !WJ:need to be removed in the future
   obsd_all%min_period=PERIOD_BEGIN
   obsd_all%max_period=PERIOD_END
   print *, "PERIOD:", obsd_all%min_period, obsd_all%max_period
 
-  !flexwin interface
+  !flexwin interface(file: flexwin_interface.f90)
   call flexwin_interface(obsd_all, synt_all, win_all, &
         rank, nproc, comm, ierr)
 

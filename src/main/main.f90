@@ -8,15 +8,12 @@
 program main
 
   use asdf_data
-  use flexwin_struct
-  use var_main
-
-  use win_io_subs
   use asdf_read_subs
 
-  use flexwin_subs
+  use flexwin_struct
+  use var_main
   use fw_interface
-  use flexwin_interface_subs
+  use main_subs
 
   use mpi
   implicit none

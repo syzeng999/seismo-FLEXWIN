@@ -1,15 +1,10 @@
 module asdf_data
 
-  !=========================================
-  !constant block
   !max number of records on one processor
-  integer, parameter :: MAXDATA_PER_PROC = 10000
+  integer, parameter :: MAXDATA_PER_PROC = 30000
   !max number of records in one asdf file
-  integer, parameter :: MAXDATA_TOTAL = 30000
+  integer, parameter :: MAXDATA_TOTAL = 90000
 
-
-  !=========================================
-  !type block
   type asdf_record
     real(kind=8), allocatable :: record(:)
   end type asdf_record

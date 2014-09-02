@@ -113,8 +113,8 @@ subroutine read_asdf_file_0(file_name, my_asdf, nrecords, &
   call adios_inq_file (fh, vcnt, acnt, tfirst, tlast, ierr)
 
   !get the number of records in the asdf file
-  call adios_get_scalar (fh,"/nrecords",nrecords_total,ierr)
-  call adios_get_scalar (fh,"/STORE_RESPONSE", resp_flag_int, ierr )
+  call adios_get_scalar (fh,"nrecords",nrecords_total,ierr)
+  call adios_get_scalar (fh,"STORE_RESPONSE", resp_flag_int, ierr )
   !change the resp_flag_int(integer) into resp_flag(logical)
   if(resp_flag_int.eq.1)then
     resp_flag=.true.
@@ -136,18 +136,18 @@ subroutine read_asdf_file_0(file_name, my_asdf, nrecords, &
   allocate(receiver_id_array_temp(nrecords_total))
   
   !read the receiver, network, component and receiver_id string 
-  call adios_get_scalar (fh,"/receiver_name_len",receiver_name_len,ierr)
-  call adios_get_scalar (fh,"/network_len",network_len,ierr)
-  call adios_get_scalar (fh,"/component_len",component_len,ierr)
-  call adios_get_scalar (fh,"/receiver_id_len",receiver_id_len,ierr)
+  call adios_get_scalar (fh,"receiver_name_len",receiver_name_len,ierr)
+  call adios_get_scalar (fh,"network_len",network_len,ierr)
+  call adios_get_scalar (fh,"component_len",component_len,ierr)
+  call adios_get_scalar (fh,"receiver_id_len",receiver_id_len,ierr)
   allocate(character(len=6*MAXDATA_TOTAL) :: receiver_name)
   allocate(character(len=6*MAXDATA_TOTAL) :: network)
   allocate(character(len=6*MAXDATA_TOTAL) :: component)
   allocate(character(len=6*MAXDATA_TOTAL) :: receiver_id)
-  call adios_get_scalar (fh, "/receiver_name", receiver_name, ierr)
-  call adios_get_scalar (fh, "/network", network, ierr)
-  call adios_get_scalar (fh, "/component", component, ierr)
-  call adios_get_scalar (fh, "/receiver_id", receiver_id, ierr)
+  call adios_get_scalar (fh, "receiver_name", receiver_name, ierr)
+  call adios_get_scalar (fh, "network", network, ierr)
+  call adios_get_scalar (fh, "component", component, ierr)
+  call adios_get_scalar (fh, "receiver_id", receiver_id, ierr)
 
   !split the job based on the receiver name(keep 3 components on the same
   !processor)
@@ -219,10 +219,10 @@ subroutine read_asdf_file_0(file_name, my_asdf, nrecords, &
 
   !--------------------------------------
   !>read in earthquake information
-  call adios_get_scalar (fh, "/event", my_asdf%event, ierr)  
-  call adios_get_scalar (fh, "/nreceivers", my_asdf%nreceivers, ierr)
-  call adios_get_scalar (fh, "/max_period", my_asdf%max_period, ierr)
-  call adios_get_scalar (fh, "/min_period", my_asdf%min_period, ierr)
+  call adios_get_scalar (fh, "event", my_asdf%event, ierr)  
+  call adios_get_scalar (fh, "nreceivers", my_asdf%nreceivers, ierr)
+  call adios_get_scalar (fh, "max_period", my_asdf%max_period, ierr)
+  call adios_get_scalar (fh, "min_period", my_asdf%min_period, ierr)
  
   if(rank.eq.0)then
     print *, "my_asdf%event:",my_asdf%event
@@ -302,7 +302,7 @@ subroutine read_asdf_file_1 (file_name, my_asdf, nrecords, &
   integer(kind=8),dimension(1)   :: start, count
   integer(kind=8),dimension(10)  :: readsize, dims
   integer(kind=8) :: npoints_read
-  integer(kind=8), dimension(nrecords) :: points_array
+  integer(kind=8), dimension(nrecords) :: points_array, points_array_temp
   integer :: dim_array
   integer :: nrecords_total, nrecords_local
   integer :: loc_begin, loc_end
@@ -331,13 +331,14 @@ subroutine read_asdf_file_1 (file_name, my_asdf, nrecords, &
 
 
   !>get the number of records and npts
-  call adios_get_scalar (fh,"/nrecords",nrecords_total,ierr)
-  call adios_get_scalar (fh,"/nrecords",resp_flag_int,ierr)
+  call adios_get_scalar (fh,"nrecords",nrecords_total,ierr)
+  call adios_get_scalar (fh,"STORE_RESPONSE",resp_flag_int,ierr)
   if(resp_flag_int.eq.1)then
     resp_flag=.true.
   else
     resp_flag=.false.
   endif
+  !print *, "resp_flag: ",resp_flag
 
   if(rank==0)then
     print *,"nrecords_total:", nrecords_total
@@ -352,18 +353,18 @@ subroutine read_asdf_file_1 (file_name, my_asdf, nrecords, &
   allocate(component_array_temp(nrecords_total))
   allocate(receiver_id_array_temp(nrecords_total))
 
-  call adios_get_scalar (fh,"/receiver_name_len",receiver_name_len,ierr)
-  call adios_get_scalar (fh,"/network_len",network_len,ierr)
-  call adios_get_scalar (fh,"/component_len",component_len,ierr)
-  call adios_get_scalar (fh,"/receiver_id_len",receiver_id_len,ierr)
+  call adios_get_scalar (fh,"receiver_name_len",receiver_name_len,ierr)
+  call adios_get_scalar (fh,"network_len",network_len,ierr)
+  call adios_get_scalar (fh,"component_len",component_len,ierr)
+  call adios_get_scalar (fh,"receiver_id_len",receiver_id_len,ierr)
   allocate(character(len=6*MAXDATA_TOTAL) :: receiver_name)
   allocate(character(len=6*MAXDATA_TOTAL) :: network)
   allocate(character(len=6*MAXDATA_TOTAL) :: component)
   allocate(character(len=6*MAXDATA_TOTAL) :: receiver_id)
-  call adios_get_scalar (fh, "/receiver_name", receiver_name, ierr)
-  call adios_get_scalar (fh, "/network", network, ierr)
-  call adios_get_scalar (fh, "/component", component, ierr)
-  call adios_get_scalar (fh, "/receiver_id", receiver_id, ierr)
+  call adios_get_scalar (fh, "receiver_name", receiver_name, ierr)
+  call adios_get_scalar (fh, "network", network, ierr)
+  call adios_get_scalar (fh, "component", component, ierr)
+  call adios_get_scalar (fh, "receiver_id", receiver_id, ierr)
 
   !split the job, get the location based on station info provided
   !print *, "split job"
@@ -371,6 +372,8 @@ subroutine read_asdf_file_1 (file_name, my_asdf, nrecords, &
     receiver_name_len, network, network_len, component, component_len, &
     receiver_id, receiver_id_len, nrecords, sta, nw, comp, rid, &
     points_array)
+  !print *, "points_array:"
+  !print *, points_array(:)
   print *, "nrecords, rank:", nrecords, rank
   if(nrecords.gt.MAXDATA_PER_PROC) then
     print *,"nrecords exceed MAXDATA_PER_PROC. Modify MAXDATA_PER_PROC."
@@ -397,11 +400,17 @@ subroutine read_asdf_file_1 (file_name, my_asdf, nrecords, &
       call adios_get_scalar(fh, trim(loc_string)//"/global_dim",dims(1), ierr)
       !print *, i,"dim:", dims(1)
       allocate (my_asdf%records(i)%record(dims(1)))
+      my_asdf%npoints(i)=dims(1)
       start(1) = 0
       count(1) = dims(1)
       call adios_selection_boundingbox (sel_record, 1 , start , count )
       call adios_schedule_read (fh, sel_record, trim(loc_string)//"/array", 0, 1, &
             my_asdf%records(i)%record, ierr)
+    else
+      !if the record doesn't exist, then just creat a non-meaning array
+      my_asdf%npoints(i)=1
+      allocate (my_asdf%records(i)%record(1))
+      my_asdf%records(i)%record(1)=0.0
     endif
     ! Read in instrument response
     if(my_asdf%STORE_RESPONSE) then
@@ -423,22 +432,30 @@ subroutine read_asdf_file_1 (file_name, my_asdf, nrecords, &
 
   !--------------------------------------
   !>read in earthquake information
-  call adios_get_scalar (fh, "/event", my_asdf%event, ierr)  
-  call adios_get_scalar (fh, "/nreceivers", my_asdf%nreceivers, ierr)
+  call adios_get_scalar (fh, "event", my_asdf%event, ierr)  
+  call adios_get_scalar (fh, "nreceivers", my_asdf%nreceivers, ierr)
   !print *,"/event",my_asdf%event
   !print *,"nreceiver:",my_asdf%nreceivers
 
   !print *, "my_asdf%event:",my_asdf%event
 
-  call adios_get_scalar (fh, "/max_period", my_asdf%max_period, ierr)
-  call adios_get_scalar (fh, "/min_period", my_asdf%min_period, ierr)
+  call adios_get_scalar (fh, "max_period", my_asdf%max_period, ierr)
+  call adios_get_scalar (fh, "min_period", my_asdf%min_period, ierr)
 
   do i=1, nrecords
-    points_array(i)=points_array(i)-1
+    if(points_array(i).gt.0)then
+      !the offset array starts from 0
+      !the points_array starts from 1
+      !so subtract 1
+      points_array_temp(i)=points_array(i)-1
+    else
+      !if the array doesn't exist(points_array==0), just fake to read the first
+      !element. and then fix it later
+      points_array_temp(i)=0
+    endif
   enddo
   npoints_read=nrecords
-  call adios_selection_points(sel, 1, npoints_read, points_array)
-  call adios_schedule_read (fh, sel, "npoints/array", 0, 1, my_asdf%npoints, ierr)
+  call adios_selection_points(sel, 1, npoints_read, points_array_temp)
 
   call adios_schedule_read (fh, sel, "gmt_year/array", 0, 1, my_asdf%gmt_year, ierr)
   call adios_schedule_read (fh, sel, "gmt_day/array", 0, 1, my_asdf%gmt_day, ierr)
@@ -469,6 +486,9 @@ subroutine read_asdf_file_1 (file_name, my_asdf, nrecords, &
   call adios_schedule_read (fh, sel, "S_pick/array", 0, 1, my_asdf%S_pick, ierr)
 
   call adios_perform_reads (fh, ierr)
+  
+  !print *, "my_asdf%npoints:"
+  !print *, my_asdf%npoints(:)
 
   call adios_read_close(fh, ierr)
   call adios_read_finalize_method(ADIOS_READ_METHOD_BP, adios_err)
@@ -581,7 +601,7 @@ subroutine init_asdf_data(my_asdf,nrecords,resp_flag)
   allocate (my_asdf%S_pick(my_asdf%nrecords))
   !>the kernel part: allocate the record
   allocate (my_asdf%records(my_asdf%nrecords))
-  if (my_asdf%STORE_RESPONSE) allocate (my_asdf%responses(my_asdf%nrecords))
+  allocate (my_asdf%responses(my_asdf%nrecords))
   allocate (my_asdf%receiver_name_array(my_asdf%nrecords))
   allocate (my_asdf%network_array(my_asdf%nrecords))
   allocate (my_asdf%component_array(my_asdf%nrecords))
@@ -591,6 +611,75 @@ subroutine init_asdf_data(my_asdf,nrecords,resp_flag)
   my_asdf%max_period=0.0
 
 end subroutine init_asdf_data
+
+subroutine deallocate_asdf(asdf_container, ierr)
+
+  integer :: ierr
+  type(asdf_event),intent(inout) :: asdf_container
+  integer :: i
+
+  deallocate (asdf_container%gmt_hour, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%gmt_day, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%gmt_min, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%gmt_sec, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%gmt_msec, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%event_lat, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%event_lo, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%event_dpt, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%receiver_lat, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%receiver_lo, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%receiver_el, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%receiver_dpt, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%begin_value, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%end_value, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%cmp_azimuth, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%cmp_incident_ang, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%sample_rate, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%scale_factor, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%ev_to_sta_AZ, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%sta_to_ev_AZ, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%great_circle_arc, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%dist, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%P_pick, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%S_pick, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  do i = 1, asdf_container%nrecords
+    deallocate(asdf_container%records(i)%record, STAT=ierr)
+    if (ierr /= 0) stop "Failed to deallocate "
+  enddo
+  deallocate (asdf_container%receiver_name_array, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%network_array, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%component_array, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+  deallocate (asdf_container%receiver_id_array, STAT=ierr)
+  if (ierr /= 0) stop "Failed to deallocate "
+
+end subroutine deallocate_asdf
 
 subroutine split_job_mpi_simple(nrecords_total, nrecords_local, loc_begin, loc_end, &
               rank,nproc)

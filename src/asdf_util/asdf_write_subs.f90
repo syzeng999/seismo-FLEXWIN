@@ -262,7 +262,7 @@ subroutine write_asdf_file_sub (asdf_container, adios_handle, my_adios_group, ad
   integer :: errorcode
 
   character(len=:), allocatable :: receiver_name, network, component, receiver_id
-  character(len=:), allocatable :: response
+  !character(len=:), allocatable :: response
   character(len=:), allocatable :: receiver_name_total, network_total, &
                                   component_total, receiver_id_total
 
@@ -315,16 +315,16 @@ subroutine write_asdf_file_sub (asdf_container, adios_handle, my_adios_group, ad
   !write out the string info
   print *,"write string"
   if(rank.eq.0)then
-    call adios_write(adios_handle, "receiver_name", trim(receiver_name), adios_err)
-    call adios_write(adios_handle, "network", trim(network), adios_err)
-    call adios_write(adios_handle, "component", trim(component), adios_err)
-    call adios_write(adios_handle, "receiver_id", trim(receiver_id), adios_err) 
+    call adios_write(adios_handle, "receiver_name", trim(receiver_name_total), adios_err)
+    call adios_write(adios_handle, "network", trim(network_total), adios_err)
+    call adios_write(adios_handle, "component", trim(component_total), adios_err)
+    call adios_write(adios_handle, "receiver_id", trim(receiver_id_total), adios_err) 
   endif
 
   !===========================
   print *,"Write seismic record"
   do i = 1, asdf_container%nrecords
-    write( loc_string, '(I10)' ) i+offset
+    !write( loc_string, '(I10)' ) i+offset
     loc_string=trim(asdf_container%receiver_name_array(i))//"."//&
                trim(asdf_container%network_array(i))//"."//&
                trim(asdf_container%component_array(i))//"."//&

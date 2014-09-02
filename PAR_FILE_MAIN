@@ -7,15 +7,15 @@
 #=================================================================
 
 #INPUT file info
-OBSD_FILE                   = DATA/201001122153A_obs.bp
-SYNT_FILE                   = DATA/201001122153A_sem.bp
+OBSD_FILE                   = DATA/200802101222A_obs.sac.bp
+SYNT_FILE                   = DATA/200802101222A_sem.sac.bp
 
 #OUTPUT directory(the window file)
-FLEXWIN_OUTDIR              = /tigress/lei/EBRU/Test/window
+FLEXWIN_OUTDIR              = OUTPUT/test2
 
 #PERIOD INFO(seconds)
-PERIOD_BEGIN                = 60.0
-PERIOD_END                  = 120.0
+PERIOD_BEGIN                = 27.0
+PERIOD_END                  = 60.0
 
 #flag
 WRITE_SINGLE_WIN_FILE       = .true.

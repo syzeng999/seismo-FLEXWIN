@@ -214,6 +214,17 @@ end subroutine read_flexwin_parfile_mpi
     
     parfile_dir="./PAR_FILES"
 
+    !***********************************
+    !for test
+    !print *,"parfile_dir: ", trim(parfile_dir)
+    !fn = trim(parfile_dir)//"/PAR_FILE"
+    !print *,"parfile name:", trim(fn)
+    !call read_flexwin_parfile_comp(fn, flexwin_par_all%Z)
+    !call read_flexwin_parfile_comp(fn, flexwin_par_all%R)
+    !call read_flexwin_parfile_comp(fn, flexwin_par_all%T)
+    !return
+    !***********************************
+
     !read in three component into flexwin_par_all
     fn=trim(parfile_dir)//"/PAR_FILE_"//trim(fstart_string)//"_"//&
               trim(fend_string)//"_Z"
@@ -231,6 +242,7 @@ end subroutine read_flexwin_parfile_mpi
               trim(fend_string)//"_T"
     print *, "Reading in flexwin par in T component"
     print *, "parfile name:", trim(fn)
+
     call read_flexwin_parfile_comp(fn, flexwin_par_all%T)
 
     !stop

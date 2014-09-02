@@ -6,6 +6,8 @@ SRCDIR = $(PWD)
 SACLIBDIR = ${SACHOME}/lib
 LIBS = -lsacio -lsac -lm
 
+CFLAGS=-g -O3
+
 ############################
 #compiler option
 FC = ifort
@@ -20,9 +22,12 @@ _OBJ = adios_helpers_definitions.o adios_helpers_writers.o \
 OBJ = $(patsubst %, ${OBJDIR}/%, $(_OBJ))
 
 ## set ADIOS_DIR here or before doing make
-override ADIOS_DIR:=/home/lei/bin/adios-1.5.0
-override ADIOS_INC:=` ${ADIOS_DIR}/bin/adios_config -c -f`
-override ADIOS_FLIB:=`${ADIOS_DIR}/bin/adios_config -l -f`
+#override ADIOS_DIR:=/home/lei/bin/adios-1.5.0
+#override ADIOS_INC:=` ${ADIOS_DIR}/bin/adios_config -c -f`
+#override ADIOS_FLIB:=`${ADIOS_DIR}/bin/adios_config -l -f`
+
+ADIOS_INC=$(shell adios_config -cf)
+ADIOS_FLIB=$(shell adios_config -lf)
 
 ##########################################################
 PROG = TEST

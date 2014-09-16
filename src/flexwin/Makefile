@@ -10,14 +10,19 @@ CFLAGS = -check noarg_temp_created
 
 # new version with default sac libraries
 SACLIBDIR = ${SACHOME}/lib
-LIBS = -lsacio -lsac
+LIBS = -lsacio -lsac -lasdf
  #LIB = -L/opt/seismo/lib -lDRWFiles -lf90recipes -lDSacio -lDSacLib -lSacTools -lm
 
+ASDFLIBDIR=$(ASDFHOME)/lib
+ASDFINCDIR=$(ASDFHOME)/include
 
 ## set ADIOS_DIR here or before doing make
-override ADIOS_DIR:=/home/lei/bin/adios-1.5.0
-override ADIOS_INC:=`${ADIOS_DIR}/bin/adios_config -c -f`
-override ADIOS_FLIB:=`${ADIOS_DIR}/bin/adios_config -l -f`
+#override ADIOS_DIR:=/home/lei/bin/adios-1.5.0
+#override ADIOS_INC:=`${ADIOS_DIR}/bin/adios_config -c -f`
+#override ADIOS_FLIB:=`${ADIOS_DIR}/bin/adios_config -l -f`
+
+ADIOS_FLIB=$(shell adios_config -lf)
+ADIOS_INC=$(shell adios_config -cf)
 
 ############################
 #compiler option
@@ -37,23 +42,18 @@ _OBJ = 	copy_float.o user_parameters.o \
 
 OBJ = $(patsubst %, ${OBJDIR}/%, $(_OBJ))
 
-## set ADIOS_DIR here or before doing make
-override ADIOS_DIR:=/home/lei/bin/adios-1.5.0
-override ADIOS_INC:=` ${ADIOS_DIR}/bin/adios_config -c -f`
-override ADIOS_FLIB:=`${ADIOS_DIR}/bin/adios_config -l -f`
-
 ##########################################################
 PROG = TEST
 default: ${PROG}
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.f90
-	  $(MPIFC) ${CFLAGS} -c -o $@ $< -module $(OBJDIR) $(ADIOS_INC)
+	  $(MPIFC) ${CFLAGS} -c -o $@ $< -module $(OBJDIR) -I$(ASDFINCDIR)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.f
-	  $(MPIFC) ${CFLAGS} -c -o $@ $< -module $(OBJDIR) $(ADIOS_INC)
+	  $(MPIFC) ${CFLAGS} -c -o $@ $< -module $(OBJDIR) -I$(ASDFINCDIR)
 .F.o:
 	$(OBJDIR)/%.o: $(SRCDIR)/%.F
-	  $(MPIFC) ${CFLAGS} -c -o $@ $< -module $(OBJDIR) $(ADIOS_INC)
+	  $(MPIFC) ${CFLAGS} -c -o $@ $< -module $(OBJDIR) -I$(ASDFINCDIR)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	  $(MPICC) -c -o $@ $< 

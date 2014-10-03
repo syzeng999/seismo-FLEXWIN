@@ -14,3 +14,4 @@ cpu_time
 PAR_FILE_MAIN
 OUTPUT
 OUTPUT/*
+ttimes_mod/*
